@@ -1,16 +1,16 @@
-# csci-3308-project
+# SkillSwap
 
-# Brief Application description
+## Brief Application description
 
-# Contributors
+## Contributors
 Annika Polavarapu, Jake Huebner, Evan Mohan, Anthony Liu, Gavin Unrue
 
-# Technology Stack used for the project
+## Technology Stack used for the project
 
-# Prerequisites to run the application - Any software that needs to be installed to run the application
+## Prerequisites to run the application - Any software that needs to be installed to run the application
 
-# Instructions on how to run the application locally.
+## Instructions on how to run the application locally.
 
-# How to run the tests
+## How to run the tests
 
-# Link to the deployed application
+## Link to the deployed application
