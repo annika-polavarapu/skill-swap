@@ -1,4 +1,4 @@
-// Copied code from Lab 8 to use as a skeleton for the project
+// Copied code from Evan's Lab 8 to use as a skeleton for the project
 
 // *****************************************************
 // <!-- Section 1 : Import Dependencies -->

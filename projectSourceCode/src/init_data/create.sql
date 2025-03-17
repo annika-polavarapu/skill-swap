@@ -1,3 +1,4 @@
+-- Lines 1-35 written by Evan, ask for clarification if anything's confusing
 -- User table
 CREATE TABLE users (
     id SERIAL PRIMARY KEY,
