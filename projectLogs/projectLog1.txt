@@ -1,0 +1,4 @@
+We created our project board and stories. 
+We talked about expectations for the week, and everyone has assigned themselves a todo.
+
+We have completed basic code outlines and wireframes for each page of our website. 
