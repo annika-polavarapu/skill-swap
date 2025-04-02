@@ -2,7 +2,7 @@
 
 
 
-
+let currentoffset=0;
 
  
 
@@ -19,12 +19,41 @@ const dayName = days[now.getDay()]; // Get the day of the week
 console.log(dayName)
 
 
-populatedays()
+populatedays(currentoffset)
 
 }
 
 
+function nextweek(){
+    currentoffset++;
+    ww();
+    clearprevdates()
+
+}
+
+function prevweek(){
+    currentoffset--;
+    ww();
+    clearprevdates()
+    
+}
+
+function clearprevdates(){
+
+  for (let i = 0; i < 7; i++) {
+const element = document.getElementsByClassName("formdate")[i];
+element.remove(); // Removes the div with the 'div-02' id
+  }
+
+
+}
+
+
+
+
+
 function selectday(dayindex){
+
 
 const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
@@ -38,7 +67,9 @@ return currentdate;
 
 
 
-function populatedays(){
+
+
+function populatedays(offset){
 
 
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
@@ -47,14 +78,14 @@ function populatedays(){
 
     const now = new Date();
     const nowt=now.getTime();
-    const dayindex= now.getDay();
+    const dayindex= now.getDay()+offset;
 
 
 
 
     console.log(nowt)
 
-     for (let i = 0; i < now.getDay(); i++) {
+     for (let i = 0; i < dayindex; i++) {
 
     
     var tempdate=nowt-(86400000*(i+1))
@@ -72,7 +103,7 @@ function populatedays(){
 
     let daychild=document.createElement('div');
     daychild.innerHTML=` 
-    <p>${formattedDate}</p>
+    <p class="formdate">${formattedDate}</p>
     `
 
 
@@ -104,7 +135,7 @@ function populatedays(){
 
                 let daychild=document.createElement('div');
             daychild.innerHTML=` 
-            <p>${formattedDate}</p>
+            <p class="formdate">${formattedDate}</p>
             `
 
              var selectedday=document.getElementById(days[i]);
@@ -125,6 +156,8 @@ function populatedays(){
    
 
 }
+
+
 
 
 
