@@ -13,7 +13,85 @@ function ww() {
 const formattedDate = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
 
 document.getElementById("currentdate").innerHTML = formattedDate;
+
+const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const dayName = days[now.getDay()]; // Get the day of the week
+console.log(dayName)
+
+var currentdate=selectday(now.getDay());
+populatedays(currentdate)
+
 }
+
+
+function selectday(dayindex){
+
+const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+var currentdate = document.getElementById(days[dayindex])
+console.log(currentdate)
+
+
+return currentdate;
+
+}
+
+
+
+function populatedays(currentdate){
+
+
+    const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
+
+   
+
+    const now = new Date();
+    const nowt=now.getTime();
+    const dayindex= now.getDay();
+
+    console.log(nowt)
+
+     for (let i = 0; i < now.getDay(); i++) {
+
+    
+    var tempdate=nowt-(86400000*(i+1))
+
+    console.log("TEMPDATE")
+    var ttnow = new Date(tempdate);
+
+
+    var formattedDate = `${ttnow.getMonth() + 1}-${ttnow.getDate()}-${ttnow.getFullYear()}`;
+
+
+  
+     console.log("FORMATTED DATE")
+     console.log(formattedDate)
+
+    let daychild=document.createElement('div');
+    daychild.innerHTML=` 
+    <p>${formattedDate}</p>
+    `
+
+
+
+    var selectedday=document.getElementById(days[dayindex-(i+1)]);
+    console.log(selectedday);
+
+ 
+
+    selectedday.appendChild(daychild)
+
+
+
+    }
+
+
+
+   
+
+}
+
+
 
 
 
