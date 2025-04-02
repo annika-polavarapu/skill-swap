@@ -80,6 +80,9 @@ app.get('/home', (req, res) => {
     res.redirect('pages/home'); 
   });
 
+
+
+  
 // GET /register route
 app.get('/register', (req, res) => {
   res.render('pages/register');
