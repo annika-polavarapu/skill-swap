@@ -88,6 +88,14 @@ app.get('/register', (req, res) => {
   res.render('pages/register');
 });
 
+
+
+// GET /scheduling route
+app.get('/scheduling', (req, res) => {
+  res.render('pages/scheduling');
+});
+
+
 // GET /login route
 app.get('/login', (req, res) => {
   res.render('pages/login');
