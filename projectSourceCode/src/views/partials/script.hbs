@@ -2,12 +2,18 @@
 
 
 
- document.addEventListener("DOMContentLoaded", function() {
-
-console.log(new Date().toLocaleString());
 
 
- }
+ 
+
+function ww() {
+
+    const now = new Date();
+
+const formattedDate = `${now.getMonth() + 1}-${now.getDate()}-${now.getFullYear()}`;
+
+document.getElementById("currentdate").innerHTML = formattedDate;
+}
 
 
 
