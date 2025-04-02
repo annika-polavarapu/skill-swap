@@ -45,18 +45,41 @@ function returnoffsetdate(){
 
 
 function nextweek(){
-    currentoffset++;
+    currentoffset=currentoffset+7;
     ww();
     clearprevdates()
+       clearevents()
 
 }
 
 function prevweek(){
+    currentoffset=currentoffset-7;
+    ww();
+    clearprevdates()
+       clearevents()
+    
+}
+
+
+
+
+function nextday(){
+    currentoffset++;
+    ww();
+    clearprevdates()
+    clearprevevents()
+
+}
+
+function prevday(){
     currentoffset--;
     ww();
     clearprevdates()
+    clearevents()
     
 }
+
+
 
 function clearprevdates(){
 
@@ -64,6 +87,32 @@ function clearprevdates(){
 const element = document.getElementsByClassName("formdate")[i];
 element.remove(); // Removes the div with the 'div-02' id
   }
+
+
+}
+
+
+
+function clearevents(){
+
+  for (let i = 0; i < 7; i++) {
+const element = document.getElementsByClassName("event row border rounded m-1 py-1")[i];
+element.remove(); // Removes the div with the 'div-02' id
+
+
+  }
+
+
+
+let elements = document.querySelectorAll(".event.row.border.rounded.m-1.py-1");
+
+// Loop through each element and apply a change
+elements.forEach(element => {
+    element.remove();
+    console.log("elements")
+    console.log(elements)
+});
+
 
 
 }
@@ -140,6 +189,8 @@ function populatedays(offset){
 
     }
 
+    console.log("SECOND HALF!!!")
+
         var counter=0;
         for (let i = dayindex; i < 7; i++) {
             console.log(i)
@@ -154,18 +205,22 @@ function populatedays(offset){
             console.log("FORMATTED DATE")
             console.log(formattedDate)
 
-                let daychild=document.createElement('div');
-            daychild.innerHTML=` 
-            <p class="formdate">${formattedDate}</p>
-            `
+        
 
              var selectedday=document.getElementById(days[i]);
     console.log(selectedday);
 
+     let daychild=document.createElement('div');
+              daychild.innerHTML=` 
+            <p class="formdate">${formattedDate}</p>
+            `
+
+        
+   selectedday.appendChild(daychild)
+
+
  
-
-    selectedday.appendChild(daychild)
-
+console.log(selectedday);
 
    
 
@@ -274,6 +329,7 @@ function createEventCard(eventDetails) {
     Event name: ${eventDetails[0].name} <br>
     Event category: ${eventDetails[0].cat} <br>
 `;}else{
+    
     info.innerHTML = `
     url: ${eventDetails[0].url} <br>
     Event time: ${eventDetails[0].time} <br>
