@@ -19,9 +19,29 @@ const dayName = days[now.getDay()]; // Get the day of the week
 console.log(dayName)
 
 
-populatedays(currentoffset)
+populatedays(0)
 
 }
+
+
+
+function returnoffsetdate(){
+
+        
+       const now = new Date();
+
+       const nowt=now.getTime();
+
+        const shift= new Date(nowt+(currentoffset*86400000));
+
+        const ttshift=shift.getTime();
+
+      
+
+        return shift;
+
+}
+
 
 
 function nextweek(){
@@ -74,9 +94,10 @@ function populatedays(offset){
 
     const days = ["sunday", "monday", "tuesday", "wednesday", "thursday", "friday", "saturday"];
 
-   
+    
 
-    const now = new Date();
+
+    const now =  returnoffsetdate()
     const nowt=now.getTime();
     const dayindex= now.getDay()+offset;
 
