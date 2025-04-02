@@ -1,0 +1,195 @@
+
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h1 class="modal-title fs-5" id="exampleModalLabel">Event details</h1>
+    
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+            <form id="eventForm">
+            
+            
+                
+    
+                <label for="evname">Event name:</label><br>
+                <input type="text" id="evname" name="evname" required><br>
+    
+              
+
+
+
+              <select name="category" id="category">
+                <option value="academic">academic</option>
+                <option value="personal">personal</option>
+                <option value="fitness">fitness</option>
+                <option value="social">social</option>
+           
+              </select>
+
+
+
+
+
+
+
+
+
+
+              <br>
+              <label for="event_weekday">Choose a day:</label>
+              <select name="days" id="event_weekday" required>
+                <option value="monday">Monday</option>
+                <option value="tuesday">Tuesday</option>
+                <option value="wednesday">Wednesday</option>
+                <option value="thursday">Thursday</option>
+                <option value="friday">Friday</option>
+                <option value="saturday">Saturday</option>
+                <option value="sunday">Sunday</option>
+              </select>
+              
+              
+               
+    
+                <label for="event_time">event time:</label><br>
+                <input type="time" id="event_time" name="event_time" required><br>
+    
+              
+       
+              <br>
+              <br>
+
+
+
+
+              <label for="event_modality">Choose an Event Modality:</label>
+            <select name="modality" id="event_modality" required onchange="updateLocationOptions(this.value)">
+            <option value="in-person" default>In-Person</option>
+            <option value="remote">Remote</option>
+            </select>
+   
+
+              
+                
+                <label for="location">Location:</label><br>
+                <input type="text" id="location" name="location" required><br>   
+              
+              
+ 
+              
+              
+              
+    
+                <label for="attendees">attendees:</label><br>
+                <input type="text" id="attendees" name="attendees" required><br>
+    
+              
+   
+  
+            </form>
+
+
+        </div>
+
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary" onclick="saveEvent()">Save changes</button>
+        </div>
+
+
+
+
+
+
+        
+      </div>
+    </div>
+  </div>
+    <div class="row">
+        <div class="col-2">
+            <div class="custom-container">
+                <button type="button" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                    Create Event
+                  </button>
+            </div>
+
+        </div>
+      
+        <div class="col">
+            <div class="container-md container-fluid py-4 h-100">
+                <div id="calendar" class="row h-100">
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="sunday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Sunday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="monday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Monday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="tuesday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Tuesday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="wednesday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Wednesday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="thursday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Thursday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="friday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Friday
+                        </div>
+                    </div>
+                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="saturday">
+                        <div class="h6 text-center position-relative py-2 day">
+                            Saturday
+                        </div>
+   
+                    </div>
+                </div>        
+            </div>
+        </div>
+    </div>
+    
+   
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+    <script>
+        function validateForm() {
+    const evname = document.getElementById("evname").value.trim();
+    const category = document.getElementById("category").value.trim();
+    const eventWeekday = document.getElementById("event_weekday").value.trim();
+    const eventTime = document.getElementById("event_time").value.trim();
+    const eventModality = document.getElementById("event_modality").value.trim();
+    const location = document.getElementById("location").value.trim();
+    const attendees = document.getElementById("attendees").value.trim();
+    if (!evname || !category || !eventWeekday || !eventTime || !eventModality || !location || !attendees) {
+      alert("Please fill out all required fields before saving.");
+      return false;
+    }
+    console.log("VALIDATOR HAS RUN");
+    // Add additional validations if necessary
+    return true;
+    //test
+}
+    </script>
+    <script src="/resources/js/script.js"></script>  
+     <script src="./../../resources/js/script.js"></script>  
+    <script src="/projectSourceCode/src/resources/js/script.js"></script>  
+
+
+         <script>
+
+{{> script}}
+            
+         </script>  
