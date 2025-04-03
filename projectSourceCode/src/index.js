@@ -85,7 +85,9 @@ app.get('/home', (req, res) => {
 });
 
 
-
+app.get('/about', (req, res) => {
+  res.render('pages/about');
+});
   
 // GET /register route
 app.get('/register', (req, res) => {
