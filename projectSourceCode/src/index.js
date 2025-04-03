@@ -107,6 +107,25 @@ app.get('/login', (req, res) => {
   res.render('pages/login');
 });
 
+// GET /logout route
+app.get('/logout', (req, res) => {
+  // Destroy the session
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error destroying session:', err.message || err);
+      return res.render('pages/logout', {
+        message: 'An error occurred during logout.',
+        error: true,
+      });
+    }
+
+    // Render the logout.hbs page with a success message
+    res.render('pages/logout', {
+      message: 'Logged out successfully.',
+      error: false,
+    });
+  });
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
