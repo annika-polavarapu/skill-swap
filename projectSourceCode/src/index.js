@@ -76,12 +76,18 @@ app.use(
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 
+app.get('/', (req, res) => {
+  res.render('pages/home'); 
+});
+
 app.get('/home', (req, res) => {
-    res.redirect('pages/home'); 
-  });
+    res.redirect('/'); 
+});
 
 
-
+app.get('/about', (req, res) => {
+  res.render('pages/about');
+});
   
 // GET /register route
 app.get('/register', (req, res) => {
