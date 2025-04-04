@@ -9,3 +9,5 @@ buttons which cycle through dates to allow users to navigate scheduled dates for
 erase scheduled events from screen when dates cycled through to prevent event burn in. 
 
 Anthony -> Logout code was written (Functionality needs to checked). Going to be working on nav and profile picture for the user.
+
+Annnika -> Login/Registration pages made. Going to be working on the skills page frontend and backend.
