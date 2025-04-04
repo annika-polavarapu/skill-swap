@@ -77,10 +77,9 @@ app.use(
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 
-app.get('/home', (req, res) => {
-  res.render('pages/home');
-  });
-
+app.get('/', (req, res) => {
+  res.render('pages/home'); 
+});
 
   app.get('/welcome', (req, res) => {
     res.json({status: 'success', message: 'Welcome!'});
