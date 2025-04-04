@@ -7,3 +7,5 @@ Release notes:
 Gavin-> implemented scheduling front end. Wrote code which populates 7 columns with current dates. Implemented 
 buttons which cycle through dates to allow users to navigate scheduled dates for the week. Added functionality to 
 erase scheduled events from screen when dates cycled through to prevent event burn in. 
+
+Anthony -> Logout code was written (Functionality needs to checked). Going to be working on nav and profile picture for the user.
