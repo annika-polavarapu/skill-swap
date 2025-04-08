@@ -1,115 +1,68 @@
-/* scheduling css rules */
-
-h1{
-    text-align: center;
-    padding-top: 2%;
-}
-body {
-    height: 100%;
-    background-color: #f2f2f2;
-  }
-  
-  .event:hover {
-    cursor: pointer;
-  }
-  
-  .hidden {
-    visibility: hidden;
-    height: 0;
-  }
-  
-  #calendar {
-    height: 100vh !important;
-  }
-
-.custom-container {
-    width: 100%;
-    padding: 20%;
-}
-
-
-
-
-
-/* General css items. */
-
-
-
-.parentbox{
-
-  display: flex;
+/* Scheduling CSS rules */
+h1 {
   text-align: center;
-  
-  
-  justify-content: space-evenly;
-  
-  flex-direction: row;
-  
-  
-  }
-  
-  
-  .parentboxcenter{
-  
-    display: flex;
-    text-align: center;
-    
-    
-    justify-content: center;
-    
-    flex-direction: row;
-    
-    
-    }
-    
-   
-  
-  
-   .childtextbox{
-   
-   
-   text-align: center;
-   
-   background-color: aliceblue;
-   border-style: double;
-   
-   justify-content: center;
-   
-   flex-direction: row;
-   
-   
-   
-   
-   
-   }
-  
-   
-   .childtextboxpadded{
-   
-   
-    text-align: center;
-    background-color: aliceblue;
-   border-style: double;
-  
-    
-    
-    justify-content: center;
-    
-    flex-direction: row;
-    padding-left: 20px;
-    padding-right: 20px;
-    
-    
-    
-    
-    }
+  padding-top: 2%;
+}
 
-/* General page styling */
 body {
   height: 100%;
-  background-color: #f2f2f2;
+  background-color: #e0e0e0; /* Slightly darker grey */
+  margin-bottom: 100px;
 }
 
+.event:hover {
+  cursor: pointer;
+}
+
+.hidden {
+  visibility: hidden;
+  height: 0;
+}
+
+#calendar {
+  height: 100vh !important;
+}
+
+.custom-container {
+  width: 100%;
+  padding: 20%;
+}
+
+/* General CSS items */
+.parentbox {
+  display: flex;
+  text-align: center;
+  justify-content: space-evenly;
+  flex-direction: row;
+}
+
+.parentboxcenter {
+  display: flex;
+  text-align: center;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.childtextbox {
+  text-align: center;
+  background-color: aliceblue;
+  border-style: double;
+  justify-content: center;
+  flex-direction: row;
+}
+
+.childtextboxpadded {
+  text-align: center;
+  background-color: aliceblue;
+  border-style: double;
+  justify-content: center;
+  flex-direction: row;
+  padding-left: 20px;
+  padding-right: 20px;
+}
+
+
+/* General page styling */
 h1, h2 {
   text-align: center;
 }
@@ -132,18 +85,6 @@ h1, h2 {
   color: #666;
 }
 
-/* Scroll animation */
-.scroll-section {
-  padding: 50px 0;
-  opacity: 0;
-  transform: translateY(50px);
-  transition: opacity 0.6s ease-out, transform 0.6s ease-out;
-}
-
-.scroll-section.visible {
-  opacity: 1;
-  transform: translateY(0);
-}
 
 /* Photo section */
 .photo-section img.team-photo {
@@ -157,5 +98,15 @@ h1, h2 {
   margin-top: 10px;
   font-size: 1rem;
   color: #444;
+}
+
+.team-photo {
+  max-width: 100%;
+  height: auto;
+  border-radius: 10px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+  object-fit: cover; /* Ensures consistent cropping */
+  width: 300px; /* Fixed width */
+  height: 300px; /* Fixed height */
 }
 

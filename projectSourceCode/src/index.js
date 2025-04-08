@@ -72,6 +72,9 @@ app.use(
   })
 );
 
+// Serve static files from /src/resources
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -111,5 +114,6 @@ app.get('/login', (req, res) => {
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
-console.log('Server is listening on port 3000');
+app.listen(3000, () => {
+  console.log('Server is listening on port 3000');
+});
