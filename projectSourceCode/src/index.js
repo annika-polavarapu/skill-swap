@@ -100,11 +100,18 @@ app.post('/scheduleevent', (req, res) => {
 
   //res.render('pages/scheduling');
 
+
   
+  console.log(req.body.location);
+  console.log(req.body.attendees);
+
+  
+
   db.tx(async t => {
     await t.none(
     "INSERT INTO events (schedday) VALUES ('monday'); "
   );
+
 
 
 
