@@ -98,7 +98,17 @@ app.get('/', (req, res) => {
 app.post('/scheduleevent', (req, res) => {
 
 
-  res.render('pages/scheduling');
+  //res.render('pages/scheduling');
+
+  
+  db.tx(async t => {
+
+
+
+    await t.none(
+    'INSERT INTO scheduledevents (scheduledday) VALUES ("monday"); '
+  );
+})
 
 
 });

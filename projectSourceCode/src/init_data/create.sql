@@ -34,3 +34,11 @@ CREATE TABLE matches (
     status VARCHAR(20) CHECK (status IN ('pending', 'confirmed', 'completed'))
 );
 
+
+
+-- Scheduled event table
+CREATE TABLE scheduledevents (
+    id SERIAL PRIMARY KEY,
+    scheduledday VARCHAR(100) NOT NULL
+);
+
