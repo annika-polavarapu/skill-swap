@@ -103,12 +103,12 @@ app.post('/scheduleevent', (req, res) => {
   
   db.tx(async t => {
     await t.none(
-    'INSERT INTO events (schedday) VALUES ("monday"); '
+    "INSERT INTO events (schedday) VALUES ('monday'); "
   );
 
 
 
-  const sched = await db.oneOrNone(
+  const sched = await db.any(
     'SELECT * FROM events;',
   
   );
