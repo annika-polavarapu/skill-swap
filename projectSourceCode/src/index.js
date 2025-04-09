@@ -92,6 +92,39 @@ app.get('/', (req, res) => {
   res.render('pages/home', { user: req.session.user }); 
 });
 
+
+
+
+app.post('/scheduleevent', (req, res) => {
+
+
+  //res.render('pages/scheduling');
+
+  
+  db.tx(async t => {
+    await t.none(
+    "INSERT INTO events (schedday) VALUES ('monday'); "
+  );
+
+
+
+  const sched = await db.any(
+    'SELECT * FROM events;',
+  
+  );
+
+  console.log(sched)
+
+
+
+})
+
+
+
+
+});
+
+
 app.get('/about', (req, res) => {
   res.render('pages/about');
 });
