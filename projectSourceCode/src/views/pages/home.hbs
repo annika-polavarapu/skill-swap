@@ -11,9 +11,9 @@
   <div class="container mt-5">
     <!-- Main Section -->
     <section class="scroll-section text-center">
-      <h1 class="page-title">Welcome to Skill Swap</h1>
-      <p class="lead">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Integer nec odio. Praesent libero. Sed cursus ante dapibus diam.</p>
-      <img src="https://via.placeholder.com/800x400" alt="Hero Image" class="img-fluid rounded shadow">
+      <h1 class="page-title">Welcome to SkillSwap</h1>
+      <p class="lead">Learn something new. Teach what you know. SkillSwap connects you with people who want to share knowledge and grow together.</p>
+      <img src="/resources/images/hero.webp" alt="Hero Image" class="img-fluid rounded shadow">
     </section>
 
     <!-- Features Section -->
@@ -21,16 +21,19 @@
       <h2 class="section-title">Our Features</h2>
       <div class="row mt-4">
         <div class="col-md-4 col-sm-12">
-          <img src="https://via.placeholder.com/300" alt="Feature 1" class="team-photo">
-          <p class="photo-caption">Feature 1: Lorem ipsum dolor sit amet.</p>
+          <img src="/resources/images/ft1.jpg" alt="Feature 1" class="team-photo">
+          <p class="photo-caption">Find like-minded learners and teachers based on your goals and experience.</p>
+
         </div>
         <div class="col-md-4 col-sm-12">
-          <img src="https://via.placeholder.com/300" alt="Feature 2" class="team-photo">
-          <p class="photo-caption">Feature 2: Consectetur adipiscing elit.</p>
+          <img src="/resources/images/ft2.png" alt="Feature 2" class="team-photo">
+          <p class="photo-caption">Set up virtual or in-person sessions at times that work for you both.</p>
+
         </div>
         <div class="col-md-4 col-sm-12">
-          <img src="https://via.placeholder.com/300" alt="Feature 3" class="team-photo">
-          <p class="photo-caption">Feature 3: Integer nec odio.</p>
+          <img src="/resources/images/ft3.webp" alt="Feature 3" class="team-photo">
+          <p class="photo-caption">Easily update your profile to reflect new skills or learning interests as you grow.</p>
+
         </div>
       </div>
     </section>
@@ -41,14 +44,14 @@
       <div class="row mt-4">
         <div class="col-md-6 col-sm-12">
           <blockquote class="blockquote">
-            <p>"Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua."</p>
-            <footer class="blockquote-footer">User 1</footer>
+            <p>"SkillSwap helped me learn guitar while sharing my Photoshop skills. It's like bartering, but for knowledge!"</p>
+            <footer class="blockquote-footer">Jess L., Graphic Designer</footer>
           </blockquote>
         </div>
         <div class="col-md-6 col-sm-12">
           <blockquote class="blockquote">
-            <p>"Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."</p>
-            <footer class="blockquote-footer">User 2</footer>
+            <p>"I matched with someone who taught me Python basics — in exchange, I taught them how to cook!"</p>
+            <footer class="blockquote-footer">Mark T., Accountant</footer>
           </blockquote>
         </div>
       </div>
@@ -56,25 +59,14 @@
 
     <!-- Register Section -->
     <section class="scroll-section text-center">
-      <h2 class="section-title">Register Today</h2>
-      <p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed nisi. Nulla quis sem at nibh elementum imperdiet.</p>
-      <a href="/register" class="btn btn-primary">Get Started</a>
+      <h2 class="section-title">Ready to Share What You Know?</h2>
+      <a href="/register" class="btn btn-primary">Join SkillSwap Now</a>
     </section>
+
+    <div style="height: 70px;"></div>
+
   </div>
 
   <script src="/resources/js/script.js"></script>
-  <script>
-    // Scroll animation logic
-    document.addEventListener('scroll', () => {
-      const sections = document.querySelectorAll('.scroll-section');
-      const scrollPosition = window.scrollY + window.innerHeight;
-
-      sections.forEach(section => {
-        if (scrollPosition > section.offsetTop + 50) {
-          section.classList.add('visible');
-        }
-      });
-    });
-  </script>
 </body>
 </html>
