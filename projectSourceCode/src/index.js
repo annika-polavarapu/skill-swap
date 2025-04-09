@@ -92,6 +92,18 @@ app.get('/', (req, res) => {
   res.render('pages/home', { user: req.session.user }); 
 });
 
+
+
+
+app.post('/scheduleevent', (req, res) => {
+
+
+  res.render('pages/scheduling');
+
+
+});
+
+
 app.get('/about', (req, res) => {
   res.render('pages/about');
 });
