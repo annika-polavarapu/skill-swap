@@ -9,7 +9,7 @@ const app = express();
 const handlebars = require('express-handlebars');
 const Handlebars = require('handlebars');
 const path = require('path');
-const pgp = require('pg-promise')(); // To connect to the Postgres DB from the node server
+const pgp = require('pg-promise')(); // To connect to the   Postgres DB from the node server
 const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require('bcryptjs'); //  To hash passwords
@@ -76,14 +76,18 @@ app.use(
 // <!-- Section 4 : API Routes -->
 // *****************************************************
 
+app.get('/welcome', (req, res) => {
+  res.json({status: 'success', message: 'Welcome!'});
+});
+
+app.use(function (req, res, next) {
+  res.locals.user = req.session.user;
+  next();
+});
+
 app.get('/', (req, res) => {
-  res.render('pages/home'); 
+  res.render('pages/home', { user: req.session.user }); 
 });
-
-app.get('/home', (req, res) => {
-    res.redirect('/'); 
-});
-
 
 app.get('/about', (req, res) => {
   res.render('pages/about');
@@ -94,7 +98,40 @@ app.get('/register', (req, res) => {
   res.render('pages/register');
 });
 
+// POST /register route
+app.post('/register', async (req, res) => {
+  const { username, email, password } = req.body;
 
+  try {
+    // Check if username or email already exists
+    const userExists = await db.oneOrNone(
+      'SELECT * FROM users WHERE username = $1 OR email = $2',
+      [username, email]
+    );
+
+    if (userExists) {
+      return res.render('pages/register', {
+        message: 'Username or email already exists.',
+        error: true,
+      });
+    }
+
+    const hash = await bcrypt.hash(password, 10);
+
+    await db.none(
+      'INSERT INTO users(username, email, password) VALUES($1, $2, $3)',
+      [username, email, hash]
+    );
+
+    res.redirect('/login');
+  } catch (error) {
+    console.error('Error during registration:', error.message || error);
+    res.render('pages/register', {
+      message: 'An error occurred during registration.',
+      error: true,
+    });
+  }
+});
 
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
@@ -107,9 +144,67 @@ app.get('/login', (req, res) => {
   res.render('pages/login');
 });
 
+// POST /login route
+app.post('/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  try {
+    const user = await db.oneOrNone(
+      'SELECT * FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (!user) {
+      return res.render('pages/login', {
+        message: 'Username not found. Please register first.',
+        error: true,
+      });
+    }
+
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.render('pages/login', {
+        message: 'Incorrect username or password.',
+        error: true,
+      });
+    }
+
+    req.session.user = user;
+    req.session.save(() => {
+      res.redirect('/');
+    });
+  } catch (error) {
+    console.error('Error during login:', error.message || error);
+    res.render('pages/login', {
+      message: 'An error occurred during login.',
+      error: true,
+    });
+  }
+});
+
+//GET /logout route
+app.get('/logout', (req, res) => {
+  // Destroy the session
+  req.session.destroy(err => {
+    if (err) {
+      console.error('Error destroying session:', err.message || err);
+      return res.render('pages/logout', {
+        message: 'An error occurred during logout.',
+        error: true,
+      });
+    }
+
+    // Render the logout.hbs page with a success message
+    res.render('pages/logout', {
+      message: 'Logged out successfully.',
+      error: false,
+    });
+  });
+});
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
-app.listen(3000);
+module.exports = app.listen(3000);
 console.log('Server is listening on port 3000');

@@ -1,18 +1,10 @@
-<!-- Copied from Evan's Lab 8 -->
-
 <header>
-  <nav class="navbar navbar-expand-sm border-bottom">
+  <nav class="navbar navbar-expand-sm navbar-light bg-light border-bottom">
     <div class="container">
-      <button
-        class="navbar-toggler ms-auto"
-        type="button"
-        data-bs-toggle="collapse"
-        data-bs-target="#navbar-collapse"
-        aria-controls="navbar"
-        aria-expanded="false"
-        aria-label="Toggle navigation">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbar-collapse">
         <span class="navbar-toggler-icon"></span>
       </button>
+      
       <div class="collapse navbar-collapse" id="navbar-collapse">
         <ul class="navbar-nav me-auto">
           <li class="nav-item">
@@ -25,18 +17,16 @@
             <a class="nav-link" href="/scheduling">Scheduling</a>
           </li>
         </ul>
-        <div class="nav-item dropdown ms-auto">
+        
+        <div class="dropdown ms-auto">
           {{#if user}}
-            <!-- Dropdown menu for logged-in users -->
-            <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              {{user.first_name}} <!-- Display user's first name -->
+            <a class="nav-link dropdown-toggle" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+              {{user.username}}
             </a>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-              <li><a class="dropdown-item" href="/profile">Profile</a></li>
-              <li><a class="dropdown-item" href="/logout">Log out</a></li>
+              <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
           {{else}}
-            <!-- Login button for guests -->
             <a class="nav-link" href="/login">Login</a>
           {{/if}}
         </div>
