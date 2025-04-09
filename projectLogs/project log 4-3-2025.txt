@@ -1,6 +1,6 @@
 
 Meeting notes:
-
+We talked about crucial components that were missing in our webpage so far and decided to prioritize them over, such as getting login and registration working, along with having our main pages setup.
 
 Release notes:
 
