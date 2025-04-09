@@ -37,14 +37,16 @@ CREATE TABLE matches (
 
 
 
+DROP TABLE IF EXISTS eventts;
+
 -- Scheduled event table
-CREATE TABLE IF NOT EXISTS events(
+CREATE TABLE IF NOT EXISTS eventts(
     id SERIAL PRIMARY KEY,
-    schedday VARCHAR(100) NOT NULL,
-    eventname VARCHAR(100) NOT NULL,
-    modality VARCHAR(100) NOT NULL,
-    eventurl VARCHAR(100) NOT NULL,
-    eventlocation VARCHAR(100) NOT NULL
+    schedday VARCHAR(100),
+    eventname VARCHAR(100),
+    modality VARCHAR(100),
+    eventurl VARCHAR(100),
+    eventlocation VARCHAR(100)
     
 );
 
