@@ -37,8 +37,8 @@ CREATE TABLE matches (
 
 
 -- Scheduled event table
-CREATE TABLE scheduledevents (
+CREATE TABLE IF NOT EXISTS events(
     id SERIAL PRIMARY KEY,
-    scheduledday VARCHAR(100) NOT NULL
+    schedday VARCHAR(100) NOT NULL
 );
 
