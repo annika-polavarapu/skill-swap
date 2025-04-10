@@ -93,6 +93,42 @@ element.remove(); // Removes the div with the 'div-02' id
 
 
 
+function checkifdatepresent(targetdate){
+
+
+          const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+             
+
+          console.log("TARGET DATE")
+          console.log(targetdate)
+
+          const now = new Date(targetdate);
+          const nowt=now.getDay();
+
+          console.log("DAY INDEX")
+          console.log(nowt)
+
+          const currentday=daysOfWeek[nowt];
+          console.log("CURRENT DAY!")
+          console.log(currentday)
+
+
+          console.log("NEWTEST")
+          const element = document.getElementsByName(targetdate);
+          console.log(element);
+         
+          element.forEach(el => 
+            manualsaveevent('sample', currentday, '00:04' , 'online','myplace','name','me')
+            );
+
+
+
+
+}
+
+
+
+
 function clearevents(){
 
 
@@ -166,7 +202,7 @@ function populatedays(offset){
 
     let daychild=document.createElement('div');
     daychild.innerHTML=` 
-    <p class="formdate">${formattedDate}</p>
+    <p class="formdate", name="${formattedDate}">${formattedDate}</p>
     `
 
 
@@ -205,7 +241,7 @@ function populatedays(offset){
 
      let daychild=document.createElement('div');
               daychild.innerHTML=` 
-            <p class="formdate">${formattedDate}</p>
+            <p class="formdate", name="${formattedDate}">${formattedDate}</p>
             `
 
         
