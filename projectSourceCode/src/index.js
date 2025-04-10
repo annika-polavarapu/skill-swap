@@ -119,8 +119,8 @@ app.post('/scheduleevent', (req, res) => {
 
   db.tx(async t => {
     await t.none(
-      "INSERT INTO eventts (schedday, eventname, modality) VALUES ($1, $2,$3);",
-      [req.body.days, req.body.evname, req.body.modality]
+      "INSERT INTO eventts (schedday, eventname, modality, eventlocation) VALUES ($1,$2,$3,$4);",
+      [req.body.days, req.body.evname, req.body.modality, req.body.location]
     );
 
     const sched = await db.any(
