@@ -1,3 +1,5 @@
+Test log update from Jake
+
 We created our project board and stories. 
 We talked about expectations for the week, and everyone has assigned themselves a todo.
 
