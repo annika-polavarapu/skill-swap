@@ -128,6 +128,11 @@ app.post('/scheduleevent', (req, res) => {
   console.log(sched)
 
 
+  res.render('pages/scheduling', {
+    events: sched,
+   
+  })
+
 
 
 
