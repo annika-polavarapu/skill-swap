@@ -103,7 +103,7 @@ function checkifdatepresent(targetdate){
           console.log(targetdate)
 
           const now = new Date(targetdate);
-          const nowt=now.getTime();
+          const nowt=now.getDay();
 
           console.log("DAY INDEX")
           console.log(nowt)
