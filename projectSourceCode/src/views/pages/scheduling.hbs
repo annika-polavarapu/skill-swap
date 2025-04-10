@@ -57,6 +57,14 @@
 
 <button onclick="manualsaveevent('sample', 'monday', '00:04' , 'online','myplace','name','me')">addsampleevent</button>
 
+<button onclick="checkifdatepresent('4-9-2025')">test datefinder</button>
+
+
+<button onclick="appendschedule()">appendschedtest</button>
+
+
+
+
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -227,13 +235,8 @@
     </div>
     
 
-    {{#each events}}
-
-    {{eventname}}
 
 
-  {{/each}}
-   
 
 
 
@@ -269,7 +272,21 @@
 
          <script>
 
-{{> script}}
+
+          function appendschedule(){
+
+
+    {{#each events}}
+
+checkifdatepresent('{{schedday}}')
+
+     
+
+
+  {{/each}}
+   
+          }
+
             
          </script>  
 
