@@ -1,12 +1,12 @@
 
 -- Insert predefined skills into the skills table
-INSERT INTO skills (user_id, skill_name)
+INSERT INTO skills (skill_name)
 VALUES
-    (NULL, 'JavaScript'),
-    (NULL, 'Python'),
-    (NULL, 'Graphic Design'),
-    (NULL, 'Data Analysis'),
-    (NULL, 'Project Management'),
-    (NULL, 'Public Speaking'),
-    (NULL, 'Web Development'),
-    (NULL, 'Digital Marketing');
+    ('JavaScript'),
+    ('Python'),
+    ('Graphic Design'),
+    ('Data Analysis'),
+    ('Project Management'),
+    ('Public Speaking'),
+    ('Web Development'),
+    ('Digital Marketing');
