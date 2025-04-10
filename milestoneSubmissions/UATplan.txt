@@ -1,0 +1,62 @@
+User Acceptance Test Plan
+
+Test Environment:
+- Platform: localhost via Docker
+- Access: App runs at http://localhost:3000
+- Testers: Team members of Skill Swap
+
+Feature 1: Register a New User
+Description:
+User fills out the registration form with valid credentials.
+
+Test Data:
+- username: test123
+- email: test@example.com
+- password: test123
+
+Steps:
+1. Go to /register
+2. Enter a valid username, email, and password
+3. Submit the form
+
+Expected Result:
+User is redirected to the login page.
+
+Feature 2: Login with Valid Credentials
+Description:
+User logs in using the correct credentials.
+
+Test Data:
+- username: test123
+- password: test123
+
+Steps:
+1. Go to /login
+2. Enter the correct username and password
+3. Submit the form
+
+Expected Result:
+User is redirected to the homepage and is logged in.
+
+
+Feature 3: Add a Skill on Profile
+Description:
+Logged-in user adds a skill with a level on their profile page.
+
+Test Data:
+- skill name: JavaScript
+- expertise level: advanced
+
+Steps:
+1. Log in and go to /profile
+2. Enter a skill name and level
+3. Click “Add Skill”
+
+Expected Result:
+Skill is displayed on the profile page under the user’s skills list.
+
+
+Acceptance Criteria:
+- Forms must display success or error messages.
+- Submitted data must persist and show on the next page load.
+- Invalid or incomplete data should result in clear feedback to the user.
