@@ -269,6 +269,28 @@ function saveEvent() {
     }
 
 
+function manualsaveevent(peventname, peventweekday, peventtime, peventmodality,plocation,premotename,pattendees){
+
+
+    const eventName = peventname || '';
+    const eventDate = peventweekday || '';
+    const eventtime = peventtime || '';
+    const eventmodality = peventmodality || '';
+    const eventlocation = plocation || '';
+    const eventurl=premotename || '';
+    const eventattendees = pattendees || '';
+   
+    const events = [
+        { name: eventName, date: eventDate, location: eventlocation, time:eventtime, modality:eventmodality, attendees: eventattendees , url:eventurl}
+      ];
+      console.log(events);
+
+      addEventToCalendarUI(events);
+
+
+}
+
+
 function addEventToCalendarUI(events){
 
     let event_card = createEventCard(events);

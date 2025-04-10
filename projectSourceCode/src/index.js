@@ -101,8 +101,6 @@ app.post('/scheduleevent', (req, res) => {
   //res.render('pages/scheduling');
 
 
-  
-  
 
   console.log(req.body.evname);
   console.log(req.body.days);
@@ -131,7 +129,34 @@ app.post('/scheduleevent', (req, res) => {
 
 
 
+
+
 })
+
+
+
+
+});
+
+
+app.get('/findevents', (req, res) => {
+
+  db.tx(async t => {
+
+  const sched = await db.any(
+    'SELECT * FROM eventts;', );
+
+
+    console.log(sched);
+
+    res.render('pages/scheduling', {
+      events: sched,
+     
+    })
+
+
+})
+
 
 
 
