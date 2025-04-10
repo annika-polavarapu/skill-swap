@@ -133,7 +133,7 @@ element.remove(); // Removes the div with the 'div-02' id
 
 
 
-function checkifdatepresent(targetdate){
+function checkifdatepresent(targetdate,nameofevent,eventloc){
 
 
           const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -158,7 +158,7 @@ function checkifdatepresent(targetdate){
           console.log(element);
          
           element.forEach(el => 
-            manualsaveevent('sample', currentday, '00:04' , 'online','myplace','name','me')
+            manualsaveevent(nameofevent, currentday, '00:04' , 'online',eventloc,'name','me')
             );
 
 
@@ -419,7 +419,7 @@ function createEventCard(eventDetails) {
     Event modality: ${eventDetails[0].modality} <br>
     Event attendees: ${eventDetails[0].attendees} <br>
     Event name: ${eventDetails[0].name} <br>
-    Event category: ${eventDetails[0].cat} <br>
+    
 `;}else{
     
     info.innerHTML = `
@@ -428,7 +428,7 @@ function createEventCard(eventDetails) {
     Event modality: ${eventDetails[0].modality} <br>
     Event attendees: ${eventDetails[0].attendees} <br>
     Event name: ${eventDetails[0].name} <br>
-    Event category: ${eventDetails[0].cat} <br>
+
 `;
 }
 const colorarray = ['green','red','yellow','blue'];
