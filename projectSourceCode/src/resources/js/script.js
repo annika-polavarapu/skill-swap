@@ -24,6 +24,44 @@ populatedays(0)
 }
 
 
+function populatedaysandevents(){
+
+    //populate days
+    ww();
+    //populate events
+    appendschedule();
+
+}
+
+function geteventsfromdb() {
+    
+
+        window.location.href = '/findevents';
+ 
+
+  
+  }
+
+  
+function initialsetup(){
+
+    //this function should be run once on the page when first loaded,
+    //it populates the weeks with dates and then it
+    //gets the current events in the database.
+    //database events must be updated only when the schedule event button is pressed
+    //afterwards.
+
+
+   
+
+    geteventsfromdb();
+
+    ww();
+
+
+
+}
+
 
 function returnoffsetdate(){
 
@@ -49,6 +87,7 @@ function nextweek(){
     ww();
     clearprevdates()
        clearevents()
+    appendschedule();
 
 }
 
@@ -57,6 +96,7 @@ function prevweek(){
     ww();
     clearprevdates()
        clearevents()
+    appendschedule()
     
 }
 
@@ -90,6 +130,42 @@ element.remove(); // Removes the div with the 'div-02' id
 
 
 }
+
+
+
+function checkifdatepresent(targetdate,nameofevent,eventloc){
+
+
+          const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+             
+
+          console.log("TARGET DATE")
+          console.log(targetdate)
+
+          const now = new Date(targetdate);
+          const nowt=now.getDay();
+
+          console.log("DAY INDEX")
+          console.log(nowt)
+
+          const currentday=daysOfWeek[nowt];
+          console.log("CURRENT DAY!")
+          console.log(currentday)
+
+
+          console.log("NEWTEST")
+          const element = document.getElementsByName(targetdate);
+          console.log(element);
+         
+          element.forEach(el => 
+            manualsaveevent(nameofevent, currentday, '00:04' , 'online',eventloc,'name','me')
+            );
+
+
+
+
+}
+
 
 
 
@@ -166,7 +242,7 @@ function populatedays(offset){
 
     let daychild=document.createElement('div');
     daychild.innerHTML=` 
-    <p class="formdate">${formattedDate}</p>
+    <p class="formdate", name="${formattedDate}">${formattedDate}</p>
     `
 
 
@@ -205,7 +281,7 @@ function populatedays(offset){
 
      let daychild=document.createElement('div');
               daychild.innerHTML=` 
-            <p class="formdate">${formattedDate}</p>
+            <p class="formdate", name="${formattedDate}">${formattedDate}</p>
             `
 
         
@@ -269,6 +345,28 @@ function saveEvent() {
     }
 
 
+function manualsaveevent(peventname, peventweekday, peventtime, peventmodality,plocation,premotename,pattendees){
+
+
+    const eventName = peventname || '';
+    const eventDate = peventweekday || '';
+    const eventtime = peventtime || '';
+    const eventmodality = peventmodality || '';
+    const eventlocation = plocation || '';
+    const eventurl=premotename || '';
+    const eventattendees = pattendees || '';
+   
+    const events = [
+        { name: eventName, date: eventDate, location: eventlocation, time:eventtime, modality:eventmodality, attendees: eventattendees , url:eventurl}
+      ];
+      console.log(events);
+
+      addEventToCalendarUI(events);
+
+
+}
+
+
 function addEventToCalendarUI(events){
 
     let event_card = createEventCard(events);
@@ -321,7 +419,7 @@ function createEventCard(eventDetails) {
     Event modality: ${eventDetails[0].modality} <br>
     Event attendees: ${eventDetails[0].attendees} <br>
     Event name: ${eventDetails[0].name} <br>
-    Event category: ${eventDetails[0].cat} <br>
+    
 `;}else{
     
     info.innerHTML = `
@@ -330,7 +428,7 @@ function createEventCard(eventDetails) {
     Event modality: ${eventDetails[0].modality} <br>
     Event attendees: ${eventDetails[0].attendees} <br>
     Event name: ${eventDetails[0].name} <br>
-    Event category: ${eventDetails[0].cat} <br>
+
 `;
 }
 const colorarray = ['green','red','yellow','blue'];
