@@ -24,6 +24,44 @@ populatedays(0)
 }
 
 
+function populatedaysandevents(){
+
+    //populate days
+    ww();
+    //populate events
+    appendschedule();
+
+}
+
+function geteventsfromdb() {
+    
+
+        window.location.href = '/findevents';
+ 
+
+  
+  }
+
+  
+function initialsetup(){
+
+    //this function should be run once on the page when first loaded,
+    //it populates the weeks with dates and then it
+    //gets the current events in the database.
+    //database events must be updated only when the schedule event button is pressed
+    //afterwards.
+
+
+   
+
+    geteventsfromdb();
+
+    ww();
+
+
+
+}
+
 
 function returnoffsetdate(){
 
@@ -49,6 +87,7 @@ function nextweek(){
     ww();
     clearprevdates()
        clearevents()
+    appendschedule();
 
 }
 
@@ -57,6 +96,7 @@ function prevweek(){
     ww();
     clearprevdates()
        clearevents()
+    appendschedule()
     
 }
 

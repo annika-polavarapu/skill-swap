@@ -52,7 +52,9 @@
 
 <button>display event database</button>
 
+
 </form>
+
 
 
 <button onclick="manualsaveevent('sample', 'monday', '00:04' , 'online','myplace','name','me')">addsampleevent</button>
@@ -63,6 +65,9 @@
 <button onclick="appendschedule()">appendschedtest</button>
 
 
+<button onclick="populatedaysandevents()">populate dates and events</button>
+
+<button onclick="initialsetup()">initsetup</button>
 
 
 
@@ -287,6 +292,30 @@ checkifdatepresent('{{schedday}}')
    
           }
 
+
+  
+
+              document.addEventListener("DOMContentLoaded", function() {
+
+                ww();
+
+                if(localStorage.loaddbtoggle==null){
+                localStorage.setItem('loaddbtoggle', -1);
+                }
+
+                localStorage.setItem('loaddbtoggle', localStorage.loaddbtoggle*-1);
+
+                if(localStorage.loaddbtoggle==1){
+                geteventsfromdb();
+                }
+                
+                appendschedule();
+
+
+              })
             
+
+
+
          </script>  
 
