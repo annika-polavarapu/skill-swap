@@ -58,10 +58,14 @@
     </section>
 
     <!-- Register Section -->
-    <section class="scroll-section text-center">
-      <h2 class="section-title">Ready to Share What You Know?</h2>
-      <a href="/register" class="btn btn-primary">Join SkillSwap Now</a>
-    </section>
+    {{#if user}}
+      <!-- Do not display the register section if the user is logged in -->
+    {{else}}
+      <section class="scroll-section text-center">
+        <h2 class="section-title">Ready to Share What You Know?</h2>
+        <a href="/register" class="btn btn-primary">Join SkillSwap Now</a>
+      </section>
+    {{/if}}
 
     <div style="height: 70px;"></div>
 
