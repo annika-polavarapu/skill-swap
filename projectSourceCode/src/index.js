@@ -182,35 +182,38 @@ app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    // Check if username or email already exists
-    const userExists = await db.oneOrNone(
-      'SELECT * FROM users WHERE username = $1 OR email = $2',
+    const existingUser = await db.oneOrNone(
+      'SELECT 1 FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($2)',
       [username, email]
     );
-
-    if (userExists) {
-      return res.render('pages/register', {
+    
+    if (existingUser) {
+      return res.status(409).json({
         message: 'Username or email already exists.',
         error: true,
       });
     }
+    
 
-    const hash = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     await db.none(
-      'INSERT INTO users(username, email, password) VALUES($1, $2, $3)',
-      [username, email, hash]
+      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)',
+      [username, email, hashedPassword]
     );
 
+    console.log(`Registered new user: ${username}`);
     res.redirect('/login');
   } catch (error) {
-    console.error('Error during registration:', error.message || error);
+    console.error('Registration error:', error);
     res.render('pages/register', {
       message: 'An error occurred during registration.',
       error: true,
     });
   }
 });
+
+
 
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
@@ -228,38 +231,47 @@ app.post('/login', async (req, res) => {
 
   try {
     const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE username = $1',
+      'SELECT * FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1)',
       [username]
     );
 
     if (!user) {
       return res.render('pages/login', {
-        message: 'Username not found. Please register first.',
+        message: 'Username or email not found. Please register.',
         error: true,
       });
     }
 
-    const match = await bcrypt.compare(password, user.password);
+    const isPasswordValid = await bcrypt.compare(password, user.password);
 
-    if (!match) {
-      return res.render('pages/login', {
-        message: 'Incorrect username or password.',
+    if (!isPasswordValid) {
+      return res.status(401).json({
+        message: 'Incorrect username/email or password.',
         error: true,
       });
     }
+    
 
-    req.session.user = user;
+    req.session.user = {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+    };
+
     req.session.save(() => {
-      res.redirect('/');
+      console.log(`Logged in as ${user.username}`);
+      res.status(200).json({ message: 'Login successful', user: req.session.user });
     });
   } catch (error) {
-    console.error('Error during login:', error.message || error);
+    console.error('Login error:', error);
     res.render('pages/login', {
       message: 'An error occurred during login.',
       error: true,
     });
   }
 });
+
+
 
 //GET /logout route
 app.get('/logout', (req, res) => {
