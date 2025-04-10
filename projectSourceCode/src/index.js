@@ -14,6 +14,7 @@ const bodyParser = require('body-parser');
 const session = require('express-session'); // To set the session object. To store or access session data, use the `req.session`, which is (generally) serialized as JSON by the store.
 const bcrypt = require('bcryptjs'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
+const multer = require('multer'); // To handle file uploads
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -75,6 +76,17 @@ app.use(
 // Serve static files from /src/resources
 app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
+// Configure multer for file uploads
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, path.join(__dirname, 'resources/uploads'));
+  },
+  filename: (req, file, cb) => {
+    cb(null, `${Date.now()}-${file.originalname}`);
+  },
+});
+const upload = multer({ storage });
+
 // *****************************************************
 // <!-- Section 4 : API Routes -->
 // *****************************************************
@@ -92,9 +104,6 @@ app.get('/', (req, res) => {
   res.render('pages/home', { user: req.session.user }); 
 });
 
-
-
-
 app.post('/scheduleevent', (req, res) => {
 
 
@@ -105,11 +114,8 @@ app.post('/scheduleevent', (req, res) => {
   console.log(req.body.evname);
   console.log(req.body.days);
   console.log(req.body.modality);
-
   console.log(req.body.location);
   console.log(req.body.attendees);
-  
-
 
   db.tx(async t => {
     await t.none(
@@ -117,15 +123,11 @@ app.post('/scheduleevent', (req, res) => {
       [req.body.days, req.body.evname, req.body.modality]
     );
 
+    const sched = await db.any(
+      'SELECT * FROM eventts;',
+    );
 
-
-
-  const sched = await db.any(
-    'SELECT * FROM eventts;',
-  
-  );
-
-  console.log(sched)
+    console.log(sched)
 
 
 
@@ -140,18 +142,15 @@ app.post('/scheduleevent', (req, res) => {
 
 
 app.get('/findevents', (req, res) => {
-
   db.tx(async t => {
-
-  const sched = await db.any(
-    'SELECT * FROM eventts;', );
-
-
-    console.log(sched);
+    const sched = await db.any(
+      'SELECT * FROM eventts;', );
+    console
+.log(sched);
 
     res.render('pages/scheduling', {
       events: sched,
-     
+    
     })
 
 
@@ -212,7 +211,6 @@ app.post('/register', async (req, res) => {
 app.get('/scheduling', (req, res) => {
   res.render('pages/scheduling');
 });
-
 
 // GET /login route
 app.get('/login', (req, res) => {
@@ -277,6 +275,113 @@ app.get('/logout', (req, res) => {
     });
   });
 });
+
+// GET /profile route
+app.get('/profile', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const skills = await db.any('SELECT * FROM skills WHERE user_id = $1', [req.session.user.id]);
+    const predefinedSkills = await db.any('SELECT * FROM skills WHERE user_id IS NULL');
+
+    console.log('Test');
+    console.log('User Skills:', skills); // Debugging user-specific skills
+    console.log('Predefined Skills:', predefinedSkills); // Debugging predefined skills
+
+    res.render('pages/profile', { user: req.session.user, skills, predefinedSkills });
+  } catch (error) {
+    console.error('Error fetching skills:', error.message || error);
+    res.render('pages/profile', { user: req.session.user, skills: [], predefinedSkills: [], error: true });
+  }
+});
+
+// POST /profile/edit route
+app.post('/profile/edit', async (req, res) => {
+  const { editValue, currentPassword, newPassword } = req.body;
+
+  try {
+    if (req.body.username) {
+      // Update username
+      await db.none('UPDATE users SET username = $1 WHERE id = $2', [editValue, req.session.user.id]);
+      req.session.user.username = editValue; // Update session data
+    } else if (req.body.email) {
+      // Update email
+      await db.none('UPDATE users SET email = $1 WHERE id = $2', [editValue, req.session.user.id]);
+      req.session.user.email = editValue; // Update session data
+    } else if (req.body.password) {
+      // Update password
+      const user = await db.one('SELECT * FROM users WHERE id = $1', [req.session.user.id]);
+      const match = await bcrypt.compare(currentPassword, user.password);
+
+      if (!match) {
+        return res.render('pages/profile', { user: req.session.user, message: 'Incorrect current password.', error: true });
+      }
+
+      const hash = await bcrypt.hash(newPassword, 10);
+      await db.none('UPDATE users SET password = $1 WHERE id = $2', [hash, req.session.user.id]);
+    }
+
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error updating profile:', error.message || error);
+    res.render('pages/profile', { user: req.session.user, message: 'An error occurred.', error: true });
+  }
+});
+
+// POST /profile/add-skill route
+app.post('/profile/add-skill', async (req, res) => {
+  const { skillName, expertiseLevel } = req.body;
+
+  try {
+    await db.none(
+      'INSERT INTO skills (user_id, skill_name, expertise_level) VALUES ($1, $2, $3)',
+      [req.session.user.id, skillName, expertiseLevel]
+    );
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error adding skill:', error.message || error);
+    res.redirect('/profile');
+  }
+});
+
+// POST /profile/remove-skill route
+app.post('/profile/remove-skill', async (req, res) => {
+  const { skillId } = req.body;
+
+  try {
+    await db.none('DELETE FROM skills WHERE id = $1 AND user_id = $2', [skillId, req.session.user.id]);
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error removing skill:', error.message || error);
+    res.redirect('/profile');
+  }
+});
+
+// POST /profile/upload-picture route
+app.post('/profile/upload-picture', upload.single('profilePicture'), async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    const filePath = `/resources/uploads/${req.file.filename}`;
+    const result = await db.one(
+      'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2) RETURNING id',
+      [req.session.user.id, filePath]
+    );
+
+    await db.none('UPDATE users SET profile_picture_id = $1 WHERE id = $2', [result.id, req.session.user.id]);
+    req.session.user.profile_picture_path = filePath;
+
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error uploading profile picture:', error.message || error);
+    res.render('pages/profile', { message: 'An error occurred.', error: true });
+  }
+});
+
 // *****************************************************
 // <!-- Section 5 : Start Server-->
 // *****************************************************
