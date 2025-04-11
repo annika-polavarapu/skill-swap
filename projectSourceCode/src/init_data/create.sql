@@ -3,8 +3,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    profile_picture_id INTEGER REFERENCES profile_pictures(id)
+    password VARCHAR(255) NOT NULL
 );
 
 -- Drop the existing skills table if it exists
@@ -35,18 +34,21 @@ CREATE TABLE matches (
     status VARCHAR(20) CHECK (status IN ('pending', 'confirmed', 'completed'))
 );
 
--- Add a table to store profile pictures
-CREATE TABLE profile_pictures (
-    id SERIAL PRIMARY KEY,
-    user_id INTEGER REFERENCES users(id),
-    file_path VARCHAR(255) NOT NULL,
-    uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+-- Add this to your existing create.sql
+CREATE TABLE IF NOT EXISTS profile_pictures (
+  id SERIAL PRIMARY KEY,
+  user_id INTEGER UNIQUE REFERENCES users(id),
+  file_path VARCHAR(255) NOT NULL,
+  uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS eventts;
+-- Add column to users table to reference profile picture
+ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture_id INTEGER REFERENCES profile_pictures(id);
+
+DROP TABLE IF EXISTS events;
 
 -- Scheduled event table
-CREATE TABLE IF NOT EXISTS eventts(
+CREATE TABLE IF NOT EXISTS events(
     id SERIAL PRIMARY KEY,
     schedday VARCHAR(100),
     eventname VARCHAR(100),
