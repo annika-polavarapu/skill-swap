@@ -53,17 +53,19 @@
     <h3>Skills</h3>
     <ul id="skills-list">
       {{#each skills}}
-        <li>
-          {{this.skill_name}} (Proficiency: {{this.expertise_level}})
-          <form method="POST" action="/profile/remove-skill" class="d-inline">
-            <input type="hidden" name="skillId" value="{{this.skill_id}}">
-            <button type="submit" class="btn btn-danger btn-sm">Remove</button>
-          </form>
-          <button class="btn btn-secondary btn-sm" onclick="editSkill('{{this.skill_id}}', '{{this.skill_name}}', '{{this.expertise_level}}')">Edit</button>
+        <li id="skill-{{this.skill_id}}">
+          <span class="skill-name">{{this.skill_name}}</span>
+          <span class="skill-buffer"> - Proficiency: </span>
+          <span class="skill-level" id="skill-level-{{this.skill_id}}">
+            {{this.expertise_level}}
+          </span>
+          <div id="edit-actions-{{this.skill_id}}" class="d-inline">
+            <button class="btn btn-secondary btn-sm" id="edit-btn-{{this.skill_id}}" onclick="startEditSkill('{{this.skill_id}}', '{{this.expertise_level}}')">Edit</button>
+          </div>
         </li>
       {{/each}}
     </ul>
-    <button class="btn btn-primary mt-3" onclick="toggleAddSkill()">Add Skill</button>
+    <button id="toggle-add-skill-btn" class="btn btn-primary mt-3" onclick="toggleAddSkill()">Add Skill</button>
 
     <div id="add-skill-section" class="mt-4" style="display: none;">
       <form id="add-skill-form" method="POST" action="/profile/add-skill">
@@ -72,8 +74,6 @@
           <select class="form-control" id="skill-id" name="skillId" required>
             {{#each predefinedSkills}}
               <option value="{{this.id}}">{{this.skill_name}}</option>
-            {{else}}
-              <option disabled>No predefined skills available</option>
             {{/each}}
           </select>
         </div>
@@ -87,9 +87,10 @@
             <option value="professional">Professional</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-success">Add Skill</button>
+        <button type="submit" class="btn btn-primary">Add Skill</button>
       </form>
     </div>
+    <div style="height: 50px;"></div>
   </div>
 
   <script>
@@ -102,24 +103,100 @@
     }
 
     function toggleAddSkill() {
-      document.getElementById('add-skill-section').style.display = 'block';
-    }
+      const addSkillSection = document.getElementById('add-skill-section');
+      const toggleButton = document.getElementById('toggle-add-skill-btn');
 
-    function editSkill(skillId, skillName, expertiseLevel) {
-      const newLevel = prompt(`Edit proficiency level for ${skillName} (current: ${expertiseLevel}):`, expertiseLevel);
-      if (newLevel) {
-        // Send a POST request to update the expertise level
-        const form = document.createElement('form');
-        form.method = 'POST';
-        form.action = '/profile/edit-skill';
-        form.innerHTML = `
-          <input type="hidden" name="skillId" value="${skillId}">
-          <input type="hidden" name="expertiseLevel" value="${newLevel}">
-        `;
-        document.body.appendChild(form);
-        form.submit();
+      if (addSkillSection.style.display === 'none') {
+        // Show the add skill section and change the button to "Cancel"
+        addSkillSection.style.display = 'block';
+        toggleButton.textContent = 'Cancel';
+        toggleButton.classList.remove('btn-primary');
+        toggleButton.classList.add('btn-secondary');
+      } else {
+        // Hide the add skill section and change the button back to "Add Skill"
+        addSkillSection.style.display = 'none';
+        toggleButton.textContent = 'Add Skill';
+        toggleButton.classList.remove('btn-secondary');
+        toggleButton.classList.add('btn-primary');
       }
     }
+
+    function startEditSkill(skillId, currentLevel) {
+      const levels = ['novice', 'intermediate', 'advanced', 'expert', 'professional'];
+      const dropdown = levels
+        .map(level => `<option value="${level}" ${level === currentLevel ? 'selected' : ''}>${level}</option>`)
+        .join('');
+
+      // Replace the proficiency text with a drop-down menu
+      const skillLevelElement = document.getElementById(`skill-level-${skillId}`);
+      skillLevelElement.innerHTML = `
+        <form method="POST" action="/profile/edit-skill" class="d-inline" onsubmit="return saveSkillEdit(event, '${skillId}')">
+          <select name="expertiseLevel" class="form-control form-control-sm d-inline" style="width: auto;">
+            ${dropdown}
+          </select>
+          <input type="hidden" name="skillId" value="${skillId}">
+          <button type="submit" class="btn btn-success btn-sm">Save</button>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="cancelEditSkill('${skillId}', '${currentLevel}')">Cancel</button>
+        </form>
+      `;
+
+      // Replace the "Edit" button with "Remove" and "Save/Cancel" buttons
+      const editActions = document.getElementById(`edit-actions-${skillId}`);
+      editActions.innerHTML = `
+        <form method="POST" action="/profile/remove-skill" class="d-inline">
+          <input type="hidden" name="skillId" value="${skillId}">
+          <button type="submit" class="btn btn-danger btn-sm">Remove</button>
+        </form>
+      `;
+    }
+
+    function saveSkillEdit(event, skillId) {
+      event.preventDefault(); // Prevent the form from submitting normally
+
+      const form = event.target;
+      const formData = new FormData(form);
+      const expertiseLevel = formData.get('expertiseLevel');
+
+      // Send the updated proficiency level to the server
+      fetch('/profile/edit-skill', {
+        method: 'POST',
+        body: formData,
+      })
+        .then(response => {
+          if (response.ok) {
+            // Update the proficiency text with the new level
+            const skillLevelElement = document.getElementById(`skill-level-${skillId}`);
+            skillLevelElement.textContent = expertiseLevel;
+
+            // Restore the "Edit" button
+            const editActions = document.getElementById(`edit-actions-${skillId}`);
+            editActions.innerHTML = `
+              <button class="btn btn-secondary btn-sm" id="edit-btn-${skillId}" onclick="startEditSkill('${skillId}', '${expertiseLevel}')">Edit</button>
+            `;
+          } else {
+            alert('Failed to update skill proficiency level.');
+          }
+        })
+        .catch(error => {
+          console.error('Error updating skill proficiency level:', error);
+          alert('An error occurred while updating the skill proficiency level.');
+        });
+
+      return false; // Prevent the default form submission
+    }
+
+    function cancelEditSkill(skillId, currentLevel) {
+      // Restore the original proficiency text
+      const skillLevelElement = document.getElementById(`skill-level-${skillId}`);
+      skillLevelElement.textContent = currentLevel;
+
+      // Restore the "Edit" button
+      const editActions = document.getElementById(`edit-actions-${skillId}`);
+      editActions.innerHTML = `
+        <button class="btn btn-secondary btn-sm" id="edit-btn-${skillId}" onclick="startEditSkill('${skillId}', '${currentLevel}')">Edit</button>
+      `;
+    }
+    
   </script>
 </body>
 </html>

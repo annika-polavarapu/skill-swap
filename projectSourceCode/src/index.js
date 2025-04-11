@@ -300,19 +300,26 @@ app.get('/profile', async (req, res) => {
   }
 
   try {
-    // Fetch user's skills and their expertise levels
+    // Fetch user's skills and their expertise levels, sorted alphabetically
     const userSkills = await db.any(
       `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
        FROM skills_to_users stu
        JOIN skills s ON stu.skill_id = s.id
        LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
-       WHERE stu.user_id = $1`,
+       WHERE stu.user_id = $1
+       ORDER BY s.skill_name ASC`,
       [req.session.user.id]
     );
 
-    // Fetch all predefined skills for the dropdown
-    const predefinedSkills = await db.any('SELECT * FROM skills');
-    console.log('Predefined Skills:', predefinedSkills);
+    // Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
+    const predefinedSkills = await db.any(
+      `SELECT * FROM skills
+       WHERE id NOT IN (
+         SELECT skill_id FROM skills_to_users WHERE user_id = $1
+       )
+       ORDER BY skill_name ASC`,
+      [req.session.user.id]
+    );
 
     res.render('pages/profile', {
       user: req.session.user,
@@ -420,10 +427,10 @@ app.post('/profile/edit-skill', async (req, res) => {
       'UPDATE expertise_levels SET expertise_level = $1 WHERE user_id = $2 AND skill_id = $3',
       [expertiseLevel, req.session.user.id, skillId]
     );
-    res.redirect('/profile');
+    res.status(200).send('Skill proficiency level updated successfully.');
   } catch (error) {
-    console.error('Error updating skill expertise level:', error.message || error);
-    res.redirect('/profile');
+    console.error('Error updating skill proficiency level:', error.message || error);
+    res.status(500).send('Failed to update skill proficiency level.');
   }
 });
 
