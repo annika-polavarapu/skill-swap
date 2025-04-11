@@ -7,7 +7,7 @@ Release notes:
 
 Gavin-> 
 
-Anthony -> 
+Anthony -> Fixed logout page, finished the dropdown for the nav bar, currently working on the profile picture uploading and giving user a default profile picture. 
 
 Annika -> Main skills page in progress. Going to be working on that this week. 
 
