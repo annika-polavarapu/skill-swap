@@ -15,6 +15,7 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcryptjs'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const multer = require('multer'); // To handle file uploads
+const fs = require('fs');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -79,13 +80,26 @@ app.use('/resources', express.static(path.join(__dirname, 'resources')));
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'resources/uploads'));
+    const uploadDir = path.join(__dirname, 'resources/uploads');
+    fs.mkdirSync(uploadDir, { recursive: true }); // Create directory if it doesn't exist
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
-  },
+  }
 });
-const upload = multer({ storage });
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -293,14 +307,20 @@ app.get('/profile', async (req, res) => {
     const skills = await db.any('SELECT * FROM skills WHERE user_id = $1', [req.session.user.id]);
     const predefinedSkills = await db.any('SELECT * FROM skills WHERE user_id IS NULL');
 
-    console.log('Test');
-    console.log('User Skills:', skills); // Debugging user-specific skills
-    console.log('Predefined Skills:', predefinedSkills); // Debugging predefined skills
-
-    res.render('pages/profile', { user: req.session.user, skills, predefinedSkills });
+    res.render('pages/profile', { 
+      user: req.session.user, 
+      skills, 
+      predefinedSkills,
+      timestamp: Date.now()
+    });
   } catch (error) {
-    console.error('Error fetching skills:', error.message || error);
-    res.render('pages/profile', { user: req.session.user, skills: [], predefinedSkills: [], error: true });
+    console.error('Error fetching profile:', error);
+    res.render('pages/profile', { 
+      user: req.session.user, 
+      skills: [], 
+      predefinedSkills: [], 
+      error: true 
+    });
   }
 });
 
@@ -372,22 +392,63 @@ app.post('/profile/upload-picture', upload.single('profilePicture'), async (req,
     return res.redirect('/login');
   }
 
+  if (!req.file) {
+    return res.render('pages/profile', {
+      user: req.session.user,
+      message: 'No file was uploaded',
+      error: true,
+      skills: req.session.user.skills || [],
+      predefinedSkills: [] 
+    });
+  }
+
   try {
     const filePath = `/resources/uploads/${req.file.filename}`;
-    const result = await db.one(
-      'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2) RETURNING id',
-      [req.session.user.id, filePath]
+    
+    // Check if user already has a profile picture
+    const existingPic = await db.oneOrNone(
+      'SELECT * FROM profile_pictures WHERE user_id = $1', 
+      [req.session.user.id]
     );
 
-    await db.none('UPDATE users SET profile_picture_id = $1 WHERE id = $2', [result.id, req.session.user.id]);
+    if (existingPic) {
+      // Update existing record
+      await db.none(
+        'UPDATE profile_pictures SET file_path = $1 WHERE user_id = $2',
+        [filePath, req.session.user.id]
+      );
+    } else {
+      // Insert new record
+      await db.none(
+        'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2)',
+        [req.session.user.id, filePath]
+      );
+    }
+
+    // Update user's profile picture reference
+    await db.none(
+      'UPDATE users SET profile_picture_id = (SELECT id FROM profile_pictures WHERE user_id = $1) WHERE id = $1',
+      [req.session.user.id]
+    );
+
+    // Update session
     req.session.user.profile_picture_path = filePath;
+    req.session.save();
 
     res.redirect('/profile');
   } catch (error) {
-    console.error('Error uploading profile picture:', error.message || error);
-    res.render('pages/profile', { message: 'An error occurred.', error: true });
+    console.error('Error uploading profile picture:', error);
+    res.render('pages/profile', {
+      user: req.session.user,
+      message: 'Error uploading picture',
+      error: true,
+      skills: req.session.user.skills || [],
+      predefinedSkills: []
+    });
   }
 });
+
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
