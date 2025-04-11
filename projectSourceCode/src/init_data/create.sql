@@ -56,4 +56,3 @@ CREATE TABLE IF NOT EXISTS events(
     eventurl VARCHAR(100),
     eventlocation VARCHAR(100)
 );
-
