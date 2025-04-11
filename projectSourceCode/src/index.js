@@ -300,17 +300,33 @@ app.get('/profile', async (req, res) => {
   }
 
   try {
-    const skills = await db.any('SELECT * FROM skills WHERE user_id = $1', [req.session.user.id]);
-    const predefinedSkills = await db.any('SELECT * FROM skills WHERE user_id IS NULL');
+    // Fetch user's skills and their expertise levels
+    const userSkills = await db.any(
+      `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
+       FROM skills_to_users stu
+       JOIN skills s ON stu.skill_id = s.id
+       LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
+       WHERE stu.user_id = $1`,
+      [req.session.user.id]
+    );
 
-    console.log('Test');
-    console.log('User Skills:', skills); // Debugging user-specific skills
-    console.log('Predefined Skills:', predefinedSkills); // Debugging predefined skills
+    // Fetch all predefined skills for the dropdown
+    const predefinedSkills = await db.any('SELECT * FROM skills');
+    console.log('Predefined Skills:', predefinedSkills);
 
-    res.render('pages/profile', { user: req.session.user, skills, predefinedSkills });
+    res.render('pages/profile', {
+      user: req.session.user,
+      skills: userSkills,
+      predefinedSkills,
+    });
   } catch (error) {
-    console.error('Error fetching skills:', error.message || error);
-    res.render('pages/profile', { user: req.session.user, skills: [], predefinedSkills: [], error: true });
+    console.error('Error fetching profile data:', error.message || error);
+    res.render('pages/profile', {
+      user: req.session.user,
+      skills: [],
+      predefinedSkills: [],
+      error: true,
+    });
   }
 });
 
@@ -349,13 +365,21 @@ app.post('/profile/edit', async (req, res) => {
 
 // POST /profile/add-skill route
 app.post('/profile/add-skill', async (req, res) => {
-  const { skillName, expertiseLevel } = req.body;
+  const { skillId, expertiseLevel } = req.body;
 
   try {
+    // Add the skill to the user
     await db.none(
-      'INSERT INTO skills (user_id, skill_name, expertise_level) VALUES ($1, $2, $3)',
-      [req.session.user.id, skillName, expertiseLevel]
+      'INSERT INTO skills_to_users (user_id, skill_id) VALUES ($1, $2)',
+      [req.session.user.id, skillId]
     );
+
+    // Add the expertise level for the skill
+    await db.none(
+      'INSERT INTO expertise_levels (user_id, skill_id, expertise_level) VALUES ($1, $2, $3)',
+      [req.session.user.id, skillId, expertiseLevel]
+    );
+
     res.redirect('/profile');
   } catch (error) {
     console.error('Error adding skill:', error.message || error);
@@ -368,10 +392,37 @@ app.post('/profile/remove-skill', async (req, res) => {
   const { skillId } = req.body;
 
   try {
-    await db.none('DELETE FROM skills WHERE id = $1 AND user_id = $2', [skillId, req.session.user.id]);
+    // Remove the skill from the user
+    await db.none(
+      'DELETE FROM skills_to_users WHERE user_id = $1 AND skill_id = $2',
+      [req.session.user.id, skillId]
+    );
+
+    // Remove the expertise level for the skill
+    await db.none(
+      'DELETE FROM expertise_levels WHERE user_id = $1 AND skill_id = $2',
+      [req.session.user.id, skillId]
+    );
+
     res.redirect('/profile');
   } catch (error) {
     console.error('Error removing skill:', error.message || error);
+    res.redirect('/profile');
+  }
+});
+
+// POST /profile/edit-skill route
+app.post('/profile/edit-skill', async (req, res) => {
+  const { skillId, expertiseLevel } = req.body;
+
+  try {
+    await db.none(
+      'UPDATE expertise_levels SET expertise_level = $1 WHERE user_id = $2 AND skill_id = $3',
+      [expertiseLevel, req.session.user.id, skillId]
+    );
+    res.redirect('/profile');
+  } catch (error) {
+    console.error('Error updating skill expertise level:', error.message || error);
     res.redirect('/profile');
   }
 });

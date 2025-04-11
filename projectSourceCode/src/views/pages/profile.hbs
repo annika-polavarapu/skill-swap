@@ -56,10 +56,10 @@
         <li>
           {{this.skill_name}} (Proficiency: {{this.expertise_level}})
           <form method="POST" action="/profile/remove-skill" class="d-inline">
-            <input type="hidden" name="skillId" value="{{this.id}}">
+            <input type="hidden" name="skillId" value="{{this.skill_id}}">
             <button type="submit" class="btn btn-danger btn-sm">Remove</button>
           </form>
-          <button class="btn btn-secondary btn-sm" onclick="editSkill('{{this.id}}', '{{this.skill_name}}', '{{this.expertise_level}}')">Edit</button>
+          <button class="btn btn-secondary btn-sm" onclick="editSkill('{{this.skill_id}}', '{{this.skill_name}}', '{{this.expertise_level}}')">Edit</button>
         </li>
       {{/each}}
     </ul>
@@ -68,10 +68,10 @@
     <div id="add-skill-section" class="mt-4" style="display: none;">
       <form id="add-skill-form" method="POST" action="/profile/add-skill">
         <div class="mb-3">
-          <label for="skill-name" class="form-label">Skill Name</label>
-          <select class="form-control" id="skill-name" name="skillName" required>
+          <label for="skill-id" class="form-label">Skill</label>
+          <select class="form-control" id="skill-id" name="skillId" required>
             {{#each predefinedSkills}}
-              <option value="{{this.skill_name}}">{{this.skill_name}}</option>
+              <option value="{{this.id}}">{{this.skill_name}}</option>
             {{else}}
               <option disabled>No predefined skills available</option>
             {{/each}}
@@ -105,8 +105,20 @@
       document.getElementById('add-skill-section').style.display = 'block';
     }
 
-    function editSkill(id, skillName, expertiseLevel) {
-      // Implement edit functionality here
+    function editSkill(skillId, skillName, expertiseLevel) {
+      const newLevel = prompt(`Edit proficiency level for ${skillName} (current: ${expertiseLevel}):`, expertiseLevel);
+      if (newLevel) {
+        // Send a POST request to update the expertise level
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = '/profile/edit-skill';
+        form.innerHTML = `
+          <input type="hidden" name="skillId" value="${skillId}">
+          <input type="hidden" name="expertiseLevel" value="${newLevel}">
+        `;
+        document.body.appendChild(form);
+        form.submit();
+      }
     }
   </script>
 </body>
