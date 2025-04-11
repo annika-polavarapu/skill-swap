@@ -3,8 +3,7 @@ CREATE TABLE users (
     id SERIAL PRIMARY KEY,
     username VARCHAR(100) UNIQUE NOT NULL,
     email VARCHAR(150) UNIQUE NOT NULL,
-    password VARCHAR(255) NOT NULL,
-    profile_picture_id INTEGER REFERENCES profile_pictures(id)
+    password VARCHAR(255) NOT NULL
 );
 
 -- Drop the existing skills table if it exists
@@ -43,10 +42,10 @@ CREATE TABLE profile_pictures (
     uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-DROP TABLE IF EXISTS eventts;
+DROP TABLE IF EXISTS events;
 
 -- Scheduled event table
-CREATE TABLE IF NOT EXISTS eventts(
+CREATE TABLE IF NOT EXISTS events(
     id SERIAL PRIMARY KEY,
     schedday VARCHAR(100),
     eventname VARCHAR(100),
