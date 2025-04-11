@@ -9,6 +9,11 @@
 </head>
 <body>
   <div class="container mt-5">
+    {{#if error}}
+      <div class="alert alert-danger" role="alert">
+        {{message}}
+      </div>
+    {{/if}}
     <h2>Profile</h2>
     <div class="row">
       <div class="col-md-4">
@@ -22,6 +27,7 @@
         <h4>Username: {{user.username}} <a href="#" class="text-primary" onclick="toggleEdit('username')">Edit</a></h4>
         <div id="edit-username" class="edit-box" style="display: none;">
           <form method="POST" action="/profile/edit">
+            <input type="hidden" name="field" value="username">
             <input type="text" class="form-control" name="editValue" placeholder="New Username" required>
             <button type="submit" class="btn btn-success mt-2">Save</button>
             <button type="button" class="btn btn-secondary mt-2" onclick="cancelEdit('username')">Cancel</button>
@@ -31,16 +37,25 @@
         <h4>Email: {{user.email}} <a href="#" class="text-primary" onclick="toggleEdit('email')">Edit</a></h4>
         <div id="edit-email" class="edit-box" style="display: none;">
           <form method="POST" action="/profile/edit">
+            <input type="hidden" name="field" value="email">
             <input type="email" class="form-control" name="editValue" placeholder="New Email" required>
             <button type="submit" class="btn btn-success mt-2">Save</button>
             <button type="button" class="btn btn-secondary mt-2" onclick="cancelEdit('email')">Cancel</button>
-          </form>
+          </form>   
         </div>
 
         <h4>Password <a href="#" class="text-primary" onclick="toggleEdit('password')">Change Password</a></h4>
-        <div id="edit-password" class="edit-box" style="display: none;">
+        <div id="edit-password" class="edit-box" style="display: {{#if keepPasswordEditOpen}}block{{else}}none{{/if}};">
           <form method="POST" action="/profile/edit">
-            <input type="password" class="form-control" name="currentPassword" placeholder="Current Password" required>
+            <input type="hidden" name="field" value="password">
+            <div class="mb-3 position-relative">
+              <input type="password" class="form-control" name="currentPassword" placeholder="Current Password" required>
+              {{#if passwordError}}
+                <div class="text-danger position-absolute" style="top: -25px; left: 0; font-size: 0.9rem; background-color: #fff; padding: 5px; border-radius: 5px; box-shadow: 0px 0px 5px rgba(0, 0, 0, 0.2);">
+                  {{passwordError}}
+                </div>
+              {{/if}}
+            </div>
             <input type="password" class="form-control mt-2" name="newPassword" placeholder="New Password" required>
             <button type="submit" class="btn btn-success mt-2">Save</button>
             <button type="button" class="btn btn-secondary mt-2" onclick="cancelEdit('password')">Cancel</button>

@@ -339,26 +339,54 @@ app.get('/profile', async (req, res) => {
 
 // POST /profile/edit route
 app.post('/profile/edit', async (req, res) => {
-  const { editValue, currentPassword, newPassword } = req.body;
+  const { editValue, currentPassword, newPassword, field } = req.body;
 
   try {
-    if (req.body.username) {
+    if (field === 'username') {
       // Update username
       await db.none('UPDATE users SET username = $1 WHERE id = $2', [editValue, req.session.user.id]);
       req.session.user.username = editValue; // Update session data
-    } else if (req.body.email) {
+    } else if (field === 'email') {
       // Update email
       await db.none('UPDATE users SET email = $1 WHERE id = $2', [editValue, req.session.user.id]);
       req.session.user.email = editValue; // Update session data
-    } else if (req.body.password) {
-      // Update password
+    } else if (field === 'password') {
+      // Validate current password
       const user = await db.one('SELECT * FROM users WHERE id = $1', [req.session.user.id]);
       const match = await bcrypt.compare(currentPassword, user.password);
 
       if (!match) {
-        return res.render('pages/profile', { user: req.session.user, message: 'Incorrect current password.', error: true });
+        // Fetch skills and predefinedSkills to preserve page state
+        const userSkills = await db.any(
+          `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
+           FROM skills_to_users stu
+           JOIN skills s ON stu.skill_id = s.id
+           LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
+           WHERE stu.user_id = $1
+           ORDER BY s.skill_name ASC`,
+          [req.session.user.id]
+        );
+
+        const predefinedSkills = await db.any(
+          `SELECT * FROM skills
+           WHERE id NOT IN (
+             SELECT skill_id FROM skills_to_users WHERE user_id = $1
+           )
+           ORDER BY skill_name ASC`,
+          [req.session.user.id]
+        );
+
+        // Render the profile page with a localized error message and keep the password edit section open
+        return res.render('pages/profile', {
+          user: req.session.user,
+          skills: userSkills,
+          predefinedSkills,
+          passwordError: 'Incorrect current password.',
+          keepPasswordEditOpen: true, // Flag to keep the password edit section open
+        });
       }
 
+      // Update to new password
       const hash = await bcrypt.hash(newPassword, 10);
       await db.none('UPDATE users SET password = $1 WHERE id = $2', [hash, req.session.user.id]);
     }
@@ -366,7 +394,13 @@ app.post('/profile/edit', async (req, res) => {
     res.redirect('/profile');
   } catch (error) {
     console.error('Error updating profile:', error.message || error);
-    res.render('pages/profile', { user: req.session.user, message: 'An error occurred.', error: true });
+    res.render('pages/profile', {
+      user: req.session.user,
+      skills: [],
+      predefinedSkills: [],
+      message: 'An error occurred while updating your profile.',
+      error: true,
+    });
   }
 });
 
