@@ -8,21 +8,35 @@
   <link rel="stylesheet" href="/resources/css/style.css">
 </head>
 <body>
-  <div class="container mt-5">
-    {{#if error}}
-      <div class="alert alert-danger" role="alert">
-        {{message}}
-      </div>
-    {{/if}}
-    <h2>Profile</h2>
-    <div class="row">
-      <div class="col-md-4">
-        <img src="{{user.profile_picture_path}}" alt="Profile Picture" class="img-fluid rounded-circle">
-        <form id="profile-picture-form" method="POST" action="/profile/upload-picture" enctype="multipart/form-data">
-          <input type="file" name="profilePicture" class="form-control mt-3" required>
-          <button type="submit" class="btn btn-primary mt-2">Upload</button>
-        </form>
-      </div>
+      <div class="container mt-5">
+        {{#if message}}
+          <div class="alert alert-{{#if error}}danger{{else}}success{{/if}}">
+            {{message}}
+          </div>
+        {{/if}}
+        <h2>Profile</h2>
+        <div class="row">
+          <div class="col-md-4">
+            <div class="card mb-4">
+              <div class="card-body text-center">
+                {{#if user.profile_picture_path}}
+                  <img src="{{user.profile_picture_path}}?t={{timestamp}}" 
+                      alt="Profile Picture" class="rounded-circle mb-3" 
+                      width="150" height="150" style="object-fit: cover;">
+                {{else}}
+                  <img src="/resources/default-profile.jpg" 
+                      alt="Default Profile" class="rounded-circle mb-3" 
+                      width="150" height="150" style="object-fit: cover;">
+                {{/if}}
+                <form action="/profile/upload-picture" method="POST" enctype="multipart/form-data">
+                  <div class="mb-3">
+                    <input type="file" class="form-control" name="profilePicture" accept="image/*" required>
+                  </div>
+                  <button type="submit" class="btn btn-primary w-100">Upload Picture</button>
+                </form>
+              </div>
+            </div>
+          </div>
       <div class="col-md-8">
         <h4>Username: {{user.username}} <a href="#" class="text-primary" onclick="toggleEdit('username')">Edit</a></h4>
         <div id="edit-username" class="edit-box" style="display: none;">

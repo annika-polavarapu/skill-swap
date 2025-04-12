@@ -15,6 +15,7 @@ const session = require('express-session'); // To set the session object. To sto
 const bcrypt = require('bcryptjs'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const multer = require('multer'); // To handle file uploads
+const fs = require('fs');
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -79,13 +80,26 @@ app.use('/resources', express.static(path.join(__dirname, 'resources')));
 // Configure multer for file uploads
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(__dirname, 'resources/uploads'));
+    const uploadDir = path.join(__dirname, 'resources/uploads');
+    fs.mkdirSync(uploadDir, { recursive: true }); // Create directory if it doesn't exist
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     cb(null, `${Date.now()}-${file.originalname}`);
-  },
+  }
 });
-const upload = multer({ storage });
+
+const upload = multer({ 
+  storage,
+  limits: { fileSize: 5 * 1024 * 1024 }, // 5MB limit
+  fileFilter: (req, file, cb) => {
+    if (file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed!'), false);
+    }
+  }
+});
 
 // *****************************************************
 // <!-- Section 4 : API Routes -->
@@ -182,30 +196,29 @@ app.post('/register', async (req, res) => {
   const { username, email, password } = req.body;
 
   try {
-    const existingUser = await db.oneOrNone(
-      'SELECT 1 FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($2)',
+    // Check if username or email already exists
+    const userExists = await db.oneOrNone(
+      'SELECT * FROM users WHERE username = $1 OR email = $2',
       [username, email]
     );
-    
-    if (existingUser) {
-      return res.status(409).json({
+
+    if (userExists) {
+      return res.render('pages/register', {
         message: 'Username or email already exists.',
         error: true,
       });
     }
-    
 
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hash = await bcrypt.hash(password, 10);
 
     await db.none(
-      'INSERT INTO users (username, email, password) VALUES ($1, $2, $3)',
-      [username, email, hashedPassword]
+      'INSERT INTO users(username, email, password) VALUES($1, $2, $3)',
+      [username, email, hash]
     );
 
-    console.log(`Registered new user: ${username}`);
     res.redirect('/login');
   } catch (error) {
-    console.error('Registration error:', error);
+    console.error('Error during registration:', error.message || error);
     res.render('pages/register', {
       message: 'An error occurred during registration.',
       error: true,
@@ -214,11 +227,11 @@ app.post('/register', async (req, res) => {
 });
 
 
-
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
   res.render('pages/scheduling');
 });
+
 
 // GET /login route
 app.get('/login', (req, res) => {
@@ -231,47 +244,38 @@ app.post('/login', async (req, res) => {
 
   try {
     const user = await db.oneOrNone(
-      'SELECT * FROM users WHERE LOWER(username) = LOWER($1) OR LOWER(email) = LOWER($1)',
+      'SELECT * FROM users WHERE username = $1',
       [username]
     );
 
     if (!user) {
       return res.render('pages/login', {
-        message: 'Username or email not found. Please register.',
+        message: 'Username not found. Please register first.',
         error: true,
       });
     }
 
-    const isPasswordValid = await bcrypt.compare(password, user.password);
+    const match = await bcrypt.compare(password, user.password);
 
-    if (!isPasswordValid) {
-      return res.status(401).json({
-        message: 'Incorrect username/email or password.',
+    if (!match) {
+      return res.render('pages/login', {
+        message: 'Incorrect username or password.',
         error: true,
       });
     }
-    
 
-    req.session.user = {
-      id: user.id,
-      username: user.username,
-      email: user.email,
-    };
-
+    req.session.user = user;
     req.session.save(() => {
-      console.log(`Logged in as ${user.username}`);
-      res.status(200).json({ message: 'Login successful', user: req.session.user });
+      res.redirect('/');
     });
   } catch (error) {
-    console.error('Login error:', error);
+    console.error('Error during login:', error.message || error);
     res.render('pages/login', {
       message: 'An error occurred during login.',
       error: true,
     });
   }
 });
-
-
 
 //GET /logout route
 app.get('/logout', (req, res) => {
@@ -300,32 +304,41 @@ app.get('/profile', async (req, res) => {
   }
 
   try {
-    // Fetch user's skills and their expertise levels, sorted alphabetically
-    const userSkills = await db.any(
-      `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
-       FROM skills_to_users stu
-       JOIN skills s ON stu.skill_id = s.id
-       LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
-       WHERE stu.user_id = $1
-       ORDER BY s.skill_name ASC`,
-      [req.session.user.id]
-    );
+// Fetch user's skills and their expertise levels, sorted alphabetically
+const userSkills = await db.any(
+  `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
+   FROM skills_to_users stu
+   JOIN skills s ON stu.skill_id = s.id
+   LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
+   WHERE stu.user_id = $1
+   ORDER BY s.skill_name ASC`,
+  [req.session.user.id]
+);
 
-    // Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
-    const predefinedSkills = await db.any(
-      `SELECT * FROM skills
-       WHERE id NOT IN (
-         SELECT skill_id FROM skills_to_users WHERE user_id = $1
-       )
-       ORDER BY skill_name ASC`,
-      [req.session.user.id]
-    );
+// Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
+const predefinedSkills = await db.any(
+  `SELECT * FROM skills
+   WHERE id NOT IN (
+     SELECT skill_id FROM skills_to_users WHERE user_id = $1
+   )
+   ORDER BY skill_name ASC`,
+  [req.session.user.id]
+);
 
-    res.render('pages/profile', {
-      user: req.session.user,
-      skills: userSkills,
-      predefinedSkills,
-    });
+res.render('pages/profile', {
+  user: req.session.user,
+  skills: userSkills,
+  predefinedSkills,
+  timestamp: Date.now(), // Add timestamp for cache-busting
+});
+
+console.error('Error fetching profile data:', error.message || error);
+res.render('pages/profile', {
+  user: req.session.user,
+  skills: [],
+  predefinedSkills: [],
+  error: true,
+});
   } catch (error) {
     console.error('Error fetching profile data:', error.message || error);
     res.render('pages/profile', {
@@ -474,22 +487,63 @@ app.post('/profile/upload-picture', upload.single('profilePicture'), async (req,
     return res.redirect('/login');
   }
 
+  if (!req.file) {
+    return res.render('pages/profile', {
+      user: req.session.user,
+      message: 'No file was uploaded',
+      error: true,
+      skills: req.session.user.skills || [],
+      predefinedSkills: [] 
+    });
+  }
+
   try {
     const filePath = `/resources/uploads/${req.file.filename}`;
-    const result = await db.one(
-      'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2) RETURNING id',
-      [req.session.user.id, filePath]
+    
+    // Check if user already has a profile picture
+    const existingPic = await db.oneOrNone(
+      'SELECT * FROM profile_pictures WHERE user_id = $1', 
+      [req.session.user.id]
     );
 
-    await db.none('UPDATE users SET profile_picture_id = $1 WHERE id = $2', [result.id, req.session.user.id]);
+    if (existingPic) {
+      // Update existing record
+      await db.none(
+        'UPDATE profile_pictures SET file_path = $1 WHERE user_id = $2',
+        [filePath, req.session.user.id]
+      );
+    } else {
+      // Insert new record
+      await db.none(
+        'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2)',
+        [req.session.user.id, filePath]
+      );
+    }
+
+    // Update user's profile picture reference
+    await db.none(
+      'UPDATE users SET profile_picture_id = (SELECT id FROM profile_pictures WHERE user_id = $1) WHERE id = $1',
+      [req.session.user.id]
+    );
+
+    // Update session
     req.session.user.profile_picture_path = filePath;
+    req.session.save();
 
     res.redirect('/profile');
   } catch (error) {
-    console.error('Error uploading profile picture:', error.message || error);
-    res.render('pages/profile', { message: 'An error occurred.', error: true });
+    console.error('Error uploading profile picture:', error);
+    res.render('pages/profile', {
+      user: req.session.user,
+      message: 'Error uploading picture',
+      error: true,
+      skills: req.session.user.skills || [],
+      predefinedSkills: []
+    });
   }
 });
+
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
 // *****************************************************
 // <!-- Section 5 : Start Server-->
