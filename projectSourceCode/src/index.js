@@ -304,47 +304,43 @@ app.get('/profile', async (req, res) => {
   }
 
   try {
-// Fetch user's skills and their expertise levels, sorted alphabetically
-const userSkills = await db.any(
-  `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
-   FROM skills_to_users stu
-   JOIN skills s ON stu.skill_id = s.id
-   LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
-   WHERE stu.user_id = $1
-   ORDER BY s.skill_name ASC`,
-  [req.session.user.id]
-);
+    // Fetch user's skills and their expertise levels, sorted alphabetically
+    const userSkills = await db.any(
+      `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
+       FROM skills_to_users stu
+       JOIN skills s ON stu.skill_id = s.id
+       LEFT JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = $1
+       WHERE stu.user_id = $1
+       ORDER BY s.skill_name ASC`,
+      [req.session.user.id]
+    );
 
-// Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
-const predefinedSkills = await db.any(
-  `SELECT * FROM skills
-   WHERE id NOT IN (
-     SELECT skill_id FROM skills_to_users WHERE user_id = $1
-   )
-   ORDER BY skill_name ASC`,
-  [req.session.user.id]
-);
+    // Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
+    const predefinedSkills = await db.any(
+      `SELECT * FROM skills
+       WHERE id NOT IN (
+         SELECT skill_id FROM skills_to_users WHERE user_id = $1
+       )
+       ORDER BY skill_name ASC`,
+      [req.session.user.id]
+    );
 
-res.render('pages/profile', {
-  user: req.session.user,
-  skills: userSkills,
-  predefinedSkills,
-  timestamp: Date.now(), // Add timestamp for cache-busting
-});
-
-console.error('Error fetching profile data:', error.message || error);
-res.render('pages/profile', {
-  user: req.session.user,
-  skills: [],
-  predefinedSkills: [],
-  error: true,
-});
+    // Render the profile page
+    return res.render('pages/profile', {
+      user: req.session.user,
+      skills: userSkills,
+      predefinedSkills,
+      timestamp: Date.now(), // Add timestamp for cache-busting
+    });
   } catch (error) {
     console.error('Error fetching profile data:', error.message || error);
-    res.render('pages/profile', {
+
+    // Render the profile page with an error message
+    return res.render('pages/profile', {
       user: req.session.user,
       skills: [],
       predefinedSkills: [],
+      message: 'An error occurred while loading the profile.',
       error: true,
     });
   }
