@@ -242,7 +242,7 @@ function populatedays(offset){
 
     let daychild=document.createElement('div');
     daychild.innerHTML=` 
-    <p class="formdate", name="${formattedDate}">${formattedDate}</p>
+    <p class="formdate h6 text-center position-relative py-2 day", name="${formattedDate}">${formattedDate}</p>
     `
 
 
@@ -281,7 +281,7 @@ function populatedays(offset){
 
      let daychild=document.createElement('div');
               daychild.innerHTML=` 
-            <p class="formdate", name="${formattedDate}">${formattedDate}</p>
+            <p class="formdate h6 text-center position-relative py-2 day", name="${formattedDate}">${formattedDate}</p>
             `
 
         
