@@ -1,0 +1,16 @@
+Meeting notes:
+We discussed our progress so far and what we hope to achieve in the next week. The current priorities are getting the 
+scheduling page working, and getting the profile page up. We completed the about page, the registration/login/logout page
+and we completed some unit testing. We also found and fixed some issues with our databse. 
+
+Release notes:
+
+Gavin-> 
+
+Anthony -> Fixed logout page, finished the dropdown for the nav bar, currently working on the profile picture uploading and giving user a default profile picture. 
+
+Annika -> Main skills page in progress. Going to be working on that this week. 
+
+Evan -> Working on the profile page, allowing users to see their current username & email, and allowing them to change these. As well as depicting the users skills
+ 
+Jake ->
