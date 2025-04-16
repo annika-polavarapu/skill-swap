@@ -134,8 +134,8 @@ app.post('/scheduleevent', (req, res) => {
 
   db.tx(async t => {
     await t.none(
-      "INSERT INTO events (schedday, eventname, modality, eventlocation, eventtime, attendees) VALUES ($1,$2,$3,$4,$5,$6);",
-      [req.body.days, req.body.evname, req.body.modality, req.body.location, req.body.event_time, req.body.attendees ]
+      "INSERT INTO events (schedday, eventname, modality, eventlocation, eventtime, attendees, eventurl ) VALUES ($1,$2,$3,$4,$5,$6,$7);",
+      [req.body.days, req.body.evname, req.body.modality, req.body.location, req.body.event_time, req.body.attendees, req.body.remotename]
     );
 
     const sched = await db.any(
@@ -143,6 +143,11 @@ app.post('/scheduleevent', (req, res) => {
     );
 
     console.log(sched)
+
+    console.log("REMOTE NAME:")
+    console.log(req.body.remotename)
+    console.log("REMOTE URL")
+    console.log(req.body.remoteurl)
 
 
   res.render('pages/scheduling', {
