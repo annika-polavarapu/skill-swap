@@ -266,6 +266,9 @@ app.post('/login', async (req, res) => {
     }
 
     req.session.user = user;
+
+    console.log("Logged-in session user:", req.session.user);
+    
     req.session.save(() => {
       res.redirect('/');
     });
@@ -305,6 +308,19 @@ app.get('/profile', async (req, res) => {
   }
 
   try {
+    // Fetch the user's profile picture
+    const pic = await db.oneOrNone(
+      'SELECT file_path FROM profile_pictures WHERE user_id = $1',
+      [req.session.user.id]
+    );
+
+    // Set the profile picture path in the session
+    if (pic) {
+      req.session.user.profile_picture_path = pic.file_path;
+    } else {
+      req.session.user.profile_picture_path = '/resources/images/image.png'; // Default profile picture
+    }
+
     // Fetch user's skills and their expertise levels, sorted alphabetically
     const userSkills = await db.any(
       `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
@@ -480,62 +496,45 @@ app.post('/profile/edit-skill', async (req, res) => {
 
 // POST /profile/upload-picture route
 app.post('/profile/upload-picture', upload.single('profilePicture'), async (req, res) => {
-  if (!req.session.user) {
-    return res.redirect('/login');
-  }
-
-  if (!req.file) {
+  if (!req.session.user || !req.file) {
     return res.render('pages/profile', {
       user: req.session.user,
-      message: 'No file was uploaded',
-      error: true,
-      skills: req.session.user.skills || [],
-      predefinedSkills: [] 
+      message: 'No file uploaded or not logged in.',
+      error: true
     });
   }
 
   try {
-    const filePath = `/resources/uploads/${req.file.filename}`;
-    
-    // Check if user already has a profile picture
-    const existingPic = await db.oneOrNone(
-      'SELECT * FROM profile_pictures WHERE user_id = $1', 
-      [req.session.user.id]
-    );
+    const newFilePath = `/resources/uploads/${req.file.filename}`;
 
-    if (existingPic) {
-      // Update existing record
-      await db.none(
-        'UPDATE profile_pictures SET file_path = $1 WHERE user_id = $2',
-        [filePath, req.session.user.id]
-      );
-    } else {
-      // Insert new record
-      await db.none(
-        'INSERT INTO profile_pictures (user_id, file_path) VALUES ($1, $2)',
-        [req.session.user.id, filePath]
-      );
+    // Get the old picture
+    const old = await db.oneOrNone('SELECT file_path FROM profile_pictures WHERE user_id = $1', [req.session.user.id]);
+
+    // Insert new or update existing
+    await db.none(`
+      INSERT INTO profile_pictures (user_id, file_path)
+      VALUES ($1, $2)
+      ON CONFLICT (user_id)
+      DO UPDATE SET file_path = $2, uploaded_at = CURRENT_TIMESTAMP
+    `, [req.session.user.id, newFilePath]);
+
+    // Delete old file (if it's not the default)
+    if (old && old.file_path && !old.file_path.includes('/image.png')) {
+      const fullPath = path.join(__dirname, old.file_path);
+      if (fs.existsSync(fullPath)) {
+        fs.unlinkSync(fullPath);
+      }
     }
 
-    // Update user's profile picture reference
-    await db.none(
-      'UPDATE users SET profile_picture_id = (SELECT id FROM profile_pictures WHERE user_id = $1) WHERE id = $1',
-      [req.session.user.id]
-    );
+    req.session.user.profile_picture_path = newFilePath;
+    req.session.save(() => res.redirect('/profile'));
 
-    // Update session
-    req.session.user.profile_picture_path = filePath;
-    req.session.save();
-
-    res.redirect('/profile');
   } catch (error) {
-    console.error('Error uploading profile picture:', error);
+    console.error('Upload error:', error);
     res.render('pages/profile', {
       user: req.session.user,
-      message: 'Error uploading picture',
-      error: true,
-      skills: req.session.user.skills || [],
-      predefinedSkills: []
+      message: `Upload failed: ${error.message}`,
+      error: true
     });
   }
 });
