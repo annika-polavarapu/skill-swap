@@ -133,7 +133,7 @@ element.remove(); // Removes the div with the 'div-02' id
 
 
 
-function checkifdatepresent(targetdate,nameofevent,eventloc){
+function checkifdatepresent(targetdate,nameofevent,eventloc,evtime){
 
 
           const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -158,7 +158,7 @@ function checkifdatepresent(targetdate,nameofevent,eventloc){
           console.log(element);
          
           element.forEach(el => 
-            manualsaveevent(nameofevent, currentday, '00:04' , 'online',eventloc,'name','me')
+            manualsaveevent(nameofevent, currentday, evtime , 'online',eventloc,'name','me')
             );
 
 
