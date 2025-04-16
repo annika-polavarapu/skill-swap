@@ -134,12 +134,12 @@ app.post('/scheduleevent', (req, res) => {
 
   db.tx(async t => {
     await t.none(
-      "INSERT INTO eventts (schedday, eventname, modality, eventlocation) VALUES ($1,$2,$3,$4);",
-      [req.body.days, req.body.evname, req.body.modality, req.body.location]
+      "INSERT INTO events (schedday, eventname, modality, eventlocation, eventtime) VALUES ($1,$2,$3,$4,$5);",
+      [req.body.days, req.body.evname, req.body.modality, req.body.location, req.body.event_time ]
     );
 
     const sched = await db.any(
-      'SELECT * FROM eventts;',
+      'SELECT * FROM events;',
     );
 
     console.log(sched)
@@ -164,7 +164,7 @@ app.post('/scheduleevent', (req, res) => {
 app.get('/findevents', (req, res) => {
   db.tx(async t => {
     const sched = await db.any(
-      'SELECT * FROM eventts;', );
+      'SELECT * FROM events;', );
     console
 .log(sched);
 
