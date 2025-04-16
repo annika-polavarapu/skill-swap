@@ -74,5 +74,6 @@ CREATE TABLE IF NOT EXISTS events(
     modality VARCHAR(100),
     eventurl VARCHAR(100),
     eventlocation VARCHAR(100),
-    eventtime TIME
+    eventtime TIME,
+    attendees VARCHAR(100)
 );
