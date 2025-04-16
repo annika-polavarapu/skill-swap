@@ -28,11 +28,11 @@
 <!-- <img src="../../resources/images/right.webp"> </img> -->
 
             
-            <button type="button" onclick="prevweek()" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <button type="button" onclick="prevweek()" class="btn btn-primary mt-3" >
                     previous week
                   </button>
 
-            <button type="button" onclick="nextweek()" class="btn btn-primary mt-3" data-bs-toggle="modal" data-bs-target="#exampleModal">
+            <button type="button" onclick="nextweek()" class="btn btn-primary mt-3">
                     next week
                   </button>
        
@@ -163,59 +163,55 @@
     </div>
   </div>
   
-  
-    <div class="row">
-        <div class="col-2">
-            <div class="custom-container">
-       
-            </div>
 
+<div class="row">
+  <!-- Dayspedia Widget Column -->
+  <div class="col-2 mt-4 ms-4">
+    <iframe
+      width="210"
+      height="317"
+      style="padding:0!important;margin:0!important;border:none!important;background:none!important;background:transparent!important"
+      marginheight="0"
+      marginwidth="0"
+      frameborder="0"
+      scrolling="no"
+      src="https://dayspedia.com/if/analog/?v=1&iframe=eyJ3LTExIjp0cnVlLCJ3LTEzIjp0cnVlLCJ3LTE1Ijp0cnVlLCJ3LTExMCI6ZmFsc2UsInctd2lkdGgtMCI6dHJ1ZSwidy13aWR0aC0xIjpmYWxzZSwidy13aWR0aC0yIjpmYWxzZSwidy0xNiI6IjI0cHgiLCJ3LTE3IjoiMTYiLCJ3LTIxIjp0cnVlLCJiZ2ltYWdlIjo3LCJiZ2ltYWdlU2V0Ijp0cnVlLCJ3LTIxYzAiOiIjZmZmZmZmIiwidy0wIjp0cnVlLCJ3LTMiOnRydWUsInctM2MwIjoiIzM0MzQzNCIsInctM2IwIjoiMSIsInctMjAiOnRydWUsInctNCI6IiMwMDdkYmYiLCJ3LTE4IjpmYWxzZSwidy13aWR0aC0yYy0wIjoiMzAwIiwidy0xMTUiOmZhbHNlLCJ3LTIzIjp0cnVlLCJ3LTIzYzAiOiIjZWNlZmYxIiwidy0yNiI6ZmFsc2UsInctMjZiMCI6IjEiLCJ3LTI3Ijp0cnVlLCJ3LTI3YzAiOiIjMzQzNDM0Iiwidy0yNCI6IiMzNDM0MzQiLCJ3LTEzYzAiOiIjZmYwMDUxIiwidy0yMiI6IiMzNDM0MzQiLCJ3LTI1IjoiMTYwIn0=&lang=en&cityid=81">
+    </iframe>
+  </div>
+
+
+  <!-- Calendar Column -->
+  <div class="col">
+    <div class="container-md container-fluid py-4 h-100">
+      <div id="calendar" class="row h-100">
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="sunday">
+          <div class="h6 text-center position-relative py-2 day">Sunday</div>
         </div>
-      
-        <div class="col">
-            <div class="container-md container-fluid py-4 h-100">
-                <div id="calendar" class="row h-100">
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="sunday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Sunday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="monday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Monday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="tuesday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Tuesday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="wednesday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Wednesday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="thursday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Thursday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="friday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Friday
-                        </div>
-                    </div>
-                    <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="saturday">
-                        <div class="h6 text-center position-relative py-2 day">
-                            Saturday
-                        </div>
-   
-                    </div>
-                </div>        
-            </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="monday">
+          <div class="h6 text-center position-relative py-2 day">Monday</div>
         </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="tuesday">
+          <div class="h6 text-center position-relative py-2 day">Tuesday</div>
+        </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="wednesday">
+          <div class="h6 text-center position-relative py-2 day">Wednesday</div>
+        </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="thursday">
+          <div class="h6 text-center position-relative py-2 day">Thursday</div>
+        </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="friday">
+          <div class="h6 text-center position-relative py-2 day">Friday</div>
+        </div>
+        <div class="col-sm m-1 bg-white rounded px-1 px-md-2" id="saturday">
+          <div class="h6 text-center position-relative py-2 day">Saturday</div>
+        </div>
+      </div>
     </div>
-    
+  </div>
+</div>
+
+
+
 
 
 
