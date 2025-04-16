@@ -34,16 +34,16 @@ CREATE TABLE matches (
     status VARCHAR(20) CHECK (status IN ('pending', 'confirmed', 'completed'))
 );
 
--- Add this to your existing create.sql
-CREATE TABLE IF NOT EXISTS profile_pictures (
+-- Profile pictures table
+DROP TABLE IF EXISTS profile_pictures;
+
+CREATE TABLE profile_pictures (
   id SERIAL PRIMARY KEY,
   user_id INTEGER UNIQUE REFERENCES users(id),
   file_path VARCHAR(255) NOT NULL,
   uploaded_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
--- Add column to users table to reference profile picture
-ALTER TABLE users ADD COLUMN IF NOT EXISTS profile_picture_id INTEGER REFERENCES profile_pictures(id);
 
 DROP TABLE IF EXISTS events;
 
