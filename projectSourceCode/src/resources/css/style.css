@@ -110,3 +110,17 @@ h1, h2 {
   height: 300px; /* Fixed height */
 }
 
+/* No matches section */
+.no-matches-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh; /* Adjust height to center vertically */
+  text-align: center;
+}
+
+.no-matches-text {
+  font-size: 1.5rem; /* Make the text larger */
+  font-weight: bold; /* Make the text bold */
+}
+
