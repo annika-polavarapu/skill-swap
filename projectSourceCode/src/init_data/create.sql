@@ -3,6 +3,7 @@ DROP TABLE IF EXISTS expertise_levels;
 DROP TABLE IF EXISTS skills_to_users;
 DROP TABLE IF EXISTS skills;
 DROP TABLE IF EXISTS users;
+DROP TABLE IF EXISTS learning_goals;
 
 -- User table
 CREATE TABLE users (
@@ -34,12 +35,12 @@ CREATE TABLE expertise_levels (
     expertise_level VARCHAR(20) CHECK (expertise_level IN ('novice', 'intermediate', 'advanced', 'expert', 'professional')) NOT NULL
 );
 
--- Learning goal table (What the user wants to learn)
-CREATE TABLE learning_goals (
+-- Learning goals table (stores skills users want to learn)
+CREATE TABLE IF NOT EXISTS learning_goals (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
-    goal_name VARCHAR(100) NOT NULL,
-    reason TEXT
+    skill_id INTEGER REFERENCES skills(id) ON DELETE CASCADE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 -- Match table (Tracks users that have been matched together)

@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Matching</title>
+  <link rel="stylesheet" href="/resources/css/style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>What skill do you want to learn?</h2>
+    <form method="POST" action="/matching">
+      <div class="mb-3">
+        <select class="form-control" name="skillId" required>
+          <option value="" disabled selected>Select a skill</option>
+          {{#each predefinedSkills}}
+            <option value="{{this.id}}">{{this.skill_name}}</option>
+          {{/each}}
+        </select>
+      </div>
+      <button type="submit" class="btn btn-primary">Find</button>
+    </form>
+
+    {{#if matches}}
+      {{#if matches.length}}
+        <div class="mt-4">
+          <h3>Matching Users</h3>
+          <div class="scrollable-container">
+            {{#each matches}}
+              <div class="card mb-3">
+                <div class="card-body">
+                  <div class="row">
+                    <div class="col-md-3 text-center">
+                      {{#if this.profile_picture_path}}
+                        <img src="{{this.profile_picture_path}}" alt="Profile Picture" class="rounded-circle" width="100" height="100">
+                      {{else}}
+                        <img src="/resources/default-profile.jpg" alt="Default Profile" class="rounded-circle" width="100" height="100">
+                      {{/if}}
+                    </div>
+                    <div class="col-md-9">
+                      <h5>{{this.username}}</h5>
+                      <p>Email: {{this.email}}</p>
+                      <p>Skill: {{this.skill_name}} ({{this.expertise_level}})</p>
+                      <p>They want to learn: {{this.mutual_skill}}</p>
+                      <form method="POST" action="/connect">
+                        <input type="hidden" name="userId" value="{{this.id}}">
+                        <button type="submit" class="btn btn-success">Connect</button>
+                      </form>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            {{/each}}
+          </div>
+        </div>
+      {{/if}}
+    {{/if}}
+
+    {{#if noMatches}}
+      <div class="no-matches-container">
+        <p class="no-matches-text">No users found.</p>
+      </div>
+    {{/if}}
+  </div>
+</body>
+</html>

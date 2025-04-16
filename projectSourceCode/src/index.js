@@ -16,6 +16,7 @@ const bcrypt = require('bcryptjs'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const multer = require('multer'); // To handle file uploads
 const fs = require('fs');
+const cron = require('node-cron'); // To schedule tasks
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -302,27 +303,23 @@ app.get('/logout', (req, res) => {
 
 // GET /profile route
 app.get('/profile', async (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
 
   try {
-
+    // Fetch the user's profile picture
     const pic = await db.oneOrNone(
       'SELECT file_path FROM profile_pictures WHERE user_id = $1',
       [req.session.user.id]
     );
 
+    // Set the profile picture path in the session
     if (pic) {
       req.session.user.profile_picture_path = pic.file_path;
     } else {
-      req.session.user.profile_picture_path = '/resources/images/image.png';
+      req.session.user.profile_picture_path = '/resources/images/image.png'; // Default profile picture
     }
-
-    const skills = await db.any('SELECT * FROM skills WHERE user_id = $1', [req.session.user.id]);
-    const predefinedSkills = await db.any('SELECT * FROM skills WHERE user_id IS NULL');
-
-    res.render('pages/profile', {
-      user: req.session.user,
-      skills,
 
     // Fetch user's skills and their expertise levels, sorted alphabetically
     const userSkills = await db.any(
@@ -349,18 +346,10 @@ app.get('/profile', async (req, res) => {
     return res.render('pages/profile', {
       user: req.session.user,
       skills: userSkills,
-
       predefinedSkills,
       timestamp: Date.now(), // Add timestamp for cache-busting
     });
   } catch (error) {
-
-    console.error('Profile error:', error);
-    res.render('pages/profile', {
-      user: req.session.user,
-      message: 'Error loading profile',
-      error: true
-
     console.error('Error fetching profile data:', error.message || error);
 
     // Render the profile page with an error message
@@ -370,11 +359,9 @@ app.get('/profile', async (req, res) => {
       predefinedSkills: [],
       message: 'An error occurred while loading the profile.',
       error: true,
-
     });
   }
 });
-
 
 // POST /profile/edit route
 app.post('/profile/edit', async (req, res) => {
@@ -552,9 +539,83 @@ app.post('/profile/upload-picture', upload.single('profilePicture'), async (req,
   }
 });
 
+app.get('/matching', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch all predefined skills for the dropdown
+    const predefinedSkills = await db.any('SELECT * FROM skills ORDER BY skill_name ASC');
+    res.render('pages/matching', { predefinedSkills });
+  } catch (error) {
+    console.error('Error loading matching page:', error.message || error);
+    res.render('pages/matching', { message: 'Error loading matching page.', error: true });
+  }
+});
+
+app.post('/matching', async (req, res) => {
+  const { skillId } = req.body;
+
+  try {
+    console.log('Skill ID:', skillId);
+
+    // Add the skill to the user's learning goals
+    await db.none(
+      'INSERT INTO learning_goals (user_id, skill_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [req.session.user.id, skillId]
+    );
+
+    // Find matching users
+    const matches = await db.any(
+      `SELECT DISTINCT ON (u.id) u.id, u.username, u.email, pp.file_path AS profile_picture_path, s.skill_name, el.expertise_level, ms.skill_name AS mutual_skill
+       FROM skills_to_users stu
+       JOIN users u ON stu.user_id = u.id
+       LEFT JOIN profile_pictures pp ON pp.user_id = u.id
+       JOIN skills s ON stu.skill_id = s.id
+       JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = u.id
+       JOIN learning_goals lg ON lg.user_id = u.id
+       JOIN skills ms ON ms.id = lg.skill_id
+       WHERE stu.skill_id = $1 AND lg.skill_id IN (
+         SELECT skill_id FROM skills_to_users WHERE user_id = $2
+       ) AND u.id != $2`,
+      [skillId, req.session.user.id]
+    );
+
+    console.log('Matches:', matches);
+
+    // Fetch predefined skills for the dropdown
+    const predefinedSkills = await db.any('SELECT * FROM skills ORDER BY skill_name ASC');
+
+    // Determine if there are no matches
+    const noMatches = matches.length === 0;
+
+    // Pass matches, predefinedSkills, and noMatches to the template
+    res.render('pages/matching', { predefinedSkills, matches, noMatches });
+  } catch (error) {
+    console.error('Error finding matches:', error.message || error);
+    res.redirect('/matching');
+  }
+});
+
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
 // *****************************************************
-// <!-- Section 5 : Start Server-->
+// <!-- Section 5 : Scheduled Tasks -->
+// *****************************************************
+
+// Schedule a weekly cleanup task (runs every Sunday at midnight)
+cron.schedule('0 0 * * 0', async () => {
+  try {
+    await db.none('DELETE FROM learning_goals WHERE created_at < NOW() - INTERVAL \'7 days\'');
+    console.log('Old learning goals cleared.');
+  } catch (error) {
+    console.error('Error clearing old learning goals:', error.message || error);
+  }
+});
+
+// *****************************************************
+// <!-- Section 6 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
 module.exports = app.listen(3000);
