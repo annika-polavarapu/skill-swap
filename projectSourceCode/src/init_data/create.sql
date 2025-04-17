@@ -4,6 +4,8 @@ DROP TABLE IF EXISTS skills_to_users;
 DROP TABLE IF EXISTS skills;
 DROP TABLE IF EXISTS users;
 DROP TABLE IF EXISTS learning_goals;
+DROP TABLE IF EXISTS chats;
+DROP TABLE IF EXISTS messages;
 
 -- User table
 CREATE TABLE users (
@@ -76,4 +78,21 @@ CREATE TABLE IF NOT EXISTS events(
     eventlocation VARCHAR(100),
     eventtime TIME,
     attendees VARCHAR(100)
+);
+
+-- Chats table
+CREATE TABLE IF NOT EXISTS chats (
+  id SERIAL PRIMARY KEY,
+  user1_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  user2_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Messages table
+CREATE TABLE IF NOT EXISTS messages (
+  id SERIAL PRIMARY KEY,
+  chat_id INTEGER REFERENCES chats(id) ON DELETE CASCADE,
+  sender_id INTEGER REFERENCES users(id) ON DELETE CASCADE,
+  content TEXT NOT NULL,
+  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
