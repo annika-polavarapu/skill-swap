@@ -125,6 +125,7 @@ app.get('/', (req, res) => {
 app.post('/scheduleevent', (req, res) => {
 
 
+
   //res.render('pages/scheduling');
 
 
@@ -158,8 +159,8 @@ app.post('/scheduleevent', (req, res) => {
    
   })
 
-
-
+  
+ 
 
 })
 
@@ -170,6 +171,9 @@ app.post('/scheduleevent', (req, res) => {
 
 
 app.get('/findevents', (req, res) => {
+
+
+
   db.tx(async t => {
     const sched = await db.any(
       'SELECT * FROM events;', );
@@ -238,7 +242,19 @@ app.post('/register', async (req, res) => {
 
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
-  res.render('pages/scheduling');
+
+
+  console.log("Logged-in session user:", req.session.user);
+
+  if(req.session.user==null){
+    res.render('pages/login');
+  
+    }else{
+
+      res.render('pages/scheduling');
+
+    }
+ 
 });
 
 
