@@ -34,7 +34,7 @@ Docker Application
 
 ## Instructions on how to run the application locally.
 
-git clone https://github.com/your-username/skillswap.git
+git clone SSH Key
 cd skillswap
 
 ## How to run the tests
