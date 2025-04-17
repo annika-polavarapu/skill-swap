@@ -133,7 +133,7 @@ element.remove(); // Removes the div with the 'div-02' id
 
 
 
-function checkifdatepresent(targetdate,nameofevent,eventloc){
+function checkifdatepresent(targetdate,nameofevent,eventloc,evtime,atten,moda){
 
 
           const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
@@ -158,7 +158,7 @@ function checkifdatepresent(targetdate,nameofevent,eventloc){
           console.log(element);
          
           element.forEach(el => 
-            manualsaveevent(nameofevent, currentday, '00:04' , 'online',eventloc,'name','me')
+            manualsaveevent(nameofevent, currentday, evtime , moda ,eventloc,'name',atten)
             );
 
 
@@ -242,7 +242,7 @@ function populatedays(offset){
 
     let daychild=document.createElement('div');
     daychild.innerHTML=` 
-    <p class="formdate", name="${formattedDate}">${formattedDate}</p>
+    <p class="formdate h6 text-center position-relative py-2 day", name="${formattedDate}">${formattedDate}</p>
     `
 
 
@@ -281,7 +281,7 @@ function populatedays(offset){
 
      let daychild=document.createElement('div');
               daychild.innerHTML=` 
-            <p class="formdate", name="${formattedDate}">${formattedDate}</p>
+            <p class="formdate h6 text-center position-relative py-2 day", name="${formattedDate}">${formattedDate}</p>
             `
 
         
