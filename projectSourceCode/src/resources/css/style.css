@@ -62,6 +62,29 @@ body {
   padding-right: 20px;
 }
 
+.scroll-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  z-index: 100;
+}
+
+.hidden-footer {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.visible-footer {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
 
 /* General page styling */
 h1, h2 {

@@ -20,5 +20,27 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+  <script>
+  let lastScrollTop = 0;
+  const footer = document.getElementById('scroll-footer');
+
+  window.addEventListener('scroll', function () {
+    const currentScroll = window.pageYOffset || document.documentElement.scrollTop;
+
+    if (currentScroll < lastScrollTop) {
+      // Scrolling up
+      footer.classList.remove('hidden-footer');
+      footer.classList.add('visible-footer');
+    } else {
+      // Scrolling down
+      footer.classList.remove('visible-footer');
+      footer.classList.add('hidden-footer');
+    }
+
+    lastScrollTop = currentScroll <= 0 ? 0 : currentScroll;
+  });
+</script>
+
+
 </body>
 </html>
