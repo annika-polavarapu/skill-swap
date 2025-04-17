@@ -178,3 +178,10 @@ nav a:hover::after {
   0% { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
 }
+
+.nav-link.active {
+  border-bottom: 3px solid #0d6efd;  /* Solid blue underline */
+  background: none !important;
+  box-shadow: none !important;
+  outline: none !important;
+}
