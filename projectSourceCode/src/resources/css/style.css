@@ -154,7 +154,7 @@ nav a {
   color: inherit;
 }
 
-nav a::after {
+nav a:not(.username)::after {
   content: "";
   position: absolute;
   width: 0%;
@@ -165,7 +165,7 @@ nav a::after {
   transition: width 0.3s ease;
 }
 
-nav a:hover::after {
+nav a:not(.username):hover::after {
   width: 100%;
 }
 
@@ -177,11 +177,4 @@ nav a:hover::after {
 @keyframes fadeIn {
   0% { opacity: 0; transform: translateY(10px); }
   100% { opacity: 1; transform: translateY(0); }
-}
-
-.nav-link.active {
-  border-bottom: 3px solid #0d6efd;  /* Solid blue underline */
-  background: none !important;
-  box-shadow: none !important;
-  outline: none !important;
 }
