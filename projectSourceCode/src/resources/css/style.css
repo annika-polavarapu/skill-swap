@@ -1,4 +1,5 @@
 /* Scheduling CSS rules */
+/*test*/
 h1 {
   text-align: center;
   padding-top: 2%;
@@ -61,6 +62,29 @@ body {
   padding-right: 20px;
 }
 
+.scroll-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 10px;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  z-index: 100;
+}
+
+.hidden-footer {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.visible-footer {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+
 
 /* General page styling */
 h1, h2 {
@@ -108,5 +132,19 @@ h1, h2 {
   object-fit: cover; /* Ensures consistent cropping */
   width: 300px; /* Fixed width */
   height: 300px; /* Fixed height */
+}
+
+/* No matches section */
+.no-matches-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 50vh; /* Adjust height to center vertically */
+  text-align: center;
+}
+
+.no-matches-text {
+  font-size: 1.5rem; /* Make the text larger */
+  font-weight: bold; /* Make the text bold */
 }
 

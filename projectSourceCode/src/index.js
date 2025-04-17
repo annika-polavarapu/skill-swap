@@ -16,6 +16,7 @@ const bcrypt = require('bcryptjs'); //  To hash passwords
 const axios = require('axios'); // To make HTTP requests from our server. We'll learn more about it in Part C.
 const multer = require('multer'); // To handle file uploads
 const fs = require('fs');
+const cron = require('node-cron'); // To schedule tasks
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -115,10 +116,14 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', (req, res) => {
-  res.render('pages/home', { user: req.session.user }); 
+  res.render('pages/home', { 
+    user: req.session.user,
+    title: 'Home | '
+  });
 });
 
 app.post('/scheduleevent', (req, res) => {
+
 
 
   //res.render('pages/scheduling');
@@ -133,15 +138,20 @@ app.post('/scheduleevent', (req, res) => {
 
   db.tx(async t => {
     await t.none(
-      "INSERT INTO eventts (schedday, eventname, modality, eventlocation) VALUES ($1,$2,$3,$4);",
-      [req.body.days, req.body.evname, req.body.modality, req.body.location]
+      "INSERT INTO events (schedday, eventname, modality, eventlocation, eventtime, attendees, eventurl ) VALUES ($1,$2,$3,$4,$5,$6,$7);",
+      [req.body.days, req.body.evname, req.body.modality, req.body.location, req.body.event_time, req.body.attendees, req.body.remotename]
     );
 
     const sched = await db.any(
-      'SELECT * FROM eventts;',
+      'SELECT * FROM events;',
     );
 
     console.log(sched)
+
+    console.log("REMOTE NAME:")
+    console.log(req.body.remotename)
+    console.log("REMOTE URL")
+    console.log(req.body.remoteurl)
 
 
   res.render('pages/scheduling', {
@@ -149,8 +159,8 @@ app.post('/scheduleevent', (req, res) => {
    
   })
 
-
-
+  
+ 
 
 })
 
@@ -161,9 +171,12 @@ app.post('/scheduleevent', (req, res) => {
 
 
 app.get('/findevents', (req, res) => {
+
+
+
   db.tx(async t => {
     const sched = await db.any(
-      'SELECT * FROM eventts;', );
+      'SELECT * FROM events;', );
     console
 .log(sched);
 
@@ -183,12 +196,12 @@ app.get('/findevents', (req, res) => {
 
 
 app.get('/about', (req, res) => {
-  res.render('pages/about');
+  res.render('pages/about', { title: 'About | ' });
 });
   
 // GET /register route
 app.get('/register', (req, res) => {
-  res.render('pages/register');
+  res.render('pages/register', { title: 'Register | ' });
 });
 
 // POST /register route
@@ -229,13 +242,25 @@ app.post('/register', async (req, res) => {
 
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
-  res.render('pages/scheduling');
+
+
+  console.log("Logged-in session user:", req.session.user);
+
+  if(req.session.user==null){
+    res.render('pages/login');
+  
+    }else{
+
+      res.render('pages/scheduling');
+
+    }
+ 
 });
 
 
 // GET /login route
 app.get('/login', (req, res) => {
-  res.render('pages/login');
+  res.render('pages/login', { title: 'Login | ' });
 });
 
 // POST /login route
@@ -302,20 +327,25 @@ app.get('/logout', (req, res) => {
 
 // GET /profile route
 app.get('/profile', async (req, res) => {
-  if (!req.session.user) return res.redirect('/login');
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
 
   try {
+    // Fetch the user's profile picture
     const pic = await db.oneOrNone(
       'SELECT file_path FROM profile_pictures WHERE user_id = $1',
       [req.session.user.id]
     );
 
+    // Set the profile picture path in the session
     if (pic) {
       req.session.user.profile_picture_path = pic.file_path;
     } else {
-      req.session.user.profile_picture_path = '/resources/images/image.png';
+      req.session.user.profile_picture_path = '/resources/images/image.png'; // Default profile picture
     }
 
+    // Fetch user's skills and their expertise levels, sorted alphabetically
     const userSkills = await db.any(
       `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
        FROM skills_to_users stu
@@ -335,11 +365,13 @@ app.get('/profile', async (req, res) => {
       [req.session.user.id]
     );
 
-    res.render('pages/profile', {
+    // Render the profile page
+    return res.render('pages/profile', {
       user: req.session.user,
+      title: 'Profile |',
       skills: userSkills,
       predefinedSkills,
-      timestamp: Date.now()
+      timestamp: Date.now(), // Add timestamp for cache-busting
     });
   } catch (error) {
     console.error('Error fetching profile data:', error.message || error);
@@ -349,12 +381,10 @@ app.get('/profile', async (req, res) => {
       skills: [],
       predefinedSkills: [],
       message: 'An error occurred while loading the profile.',
-      error: true
+      error: true,
     });
   }
 });
-
-
 
 // POST /profile/edit route
 app.post('/profile/edit', async (req, res) => {
@@ -532,9 +562,152 @@ app.post('/profile/upload-picture', upload.single('profilePicture'), async (req,
   }
 });
 
+app.get('/matching', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch all predefined skills for the dropdown
+    const predefinedSkills = await db.any('SELECT * FROM skills ORDER BY skill_name ASC');
+    res.render('pages/matching', { predefinedSkills });
+  } catch (error) {
+    console.error('Error loading matching page:', error.message || error);
+    res.render('pages/matching', { message: 'Error loading matching page.', error: true });
+  }
+});
+
+app.post('/matching', async (req, res) => {
+  const { skillId } = req.body;
+
+  try {
+    console.log('Skill ID:', skillId);
+
+    // Add the skill to the user's learning goals
+    await db.none(
+      'INSERT INTO learning_goals (user_id, skill_id) VALUES ($1, $2) ON CONFLICT DO NOTHING',
+      [req.session.user.id, skillId]
+    );
+
+    // Find matching users
+    const matches = await db.any(
+      `SELECT DISTINCT ON (u.id) u.id, u.username, u.email, pp.file_path AS profile_picture_path, s.skill_name, el.expertise_level, ms.skill_name AS mutual_skill
+       FROM skills_to_users stu
+       JOIN users u ON stu.user_id = u.id
+       LEFT JOIN profile_pictures pp ON pp.user_id = u.id
+       JOIN skills s ON stu.skill_id = s.id
+       JOIN expertise_levels el ON el.skill_id = s.id AND el.user_id = u.id
+       JOIN learning_goals lg ON lg.user_id = u.id
+       JOIN skills ms ON ms.id = lg.skill_id
+       WHERE stu.skill_id = $1 AND lg.skill_id IN (
+         SELECT skill_id FROM skills_to_users WHERE user_id = $2
+       ) AND u.id != $2`,
+      [skillId, req.session.user.id]
+    );
+
+    // Fetch predefined skills for the dropdown
+    const predefinedSkills = await db.any('SELECT * FROM skills ORDER BY skill_name ASC');
+
+    // Determine if there are no matches
+    const noMatches = matches.length === 0;
+
+    // Pass matches, predefinedSkills, and noMatches to the template
+    res.render('pages/matching', { predefinedSkills, matches, noMatches });
+  } catch (error) {
+    console.error('Error finding matches:', error.message || error);
+    res.redirect('/matching');
+  }
+});
+
+// POST /connect route
+app.post('/connect', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const { userId } = req.body;
+
+  try {
+    console.log('Connecting user:', req.session.user.id, 'with user:', userId);
+
+    // Check if a chat already exists between the two users
+    const chat = await db.oneOrNone(
+      `SELECT * FROM chats 
+       WHERE (user1_id = $1 AND user2_id = $2) 
+          OR (user1_id = $2 AND user2_id = $1)`,
+      [req.session.user.id, userId]
+    );
+
+    // If no chat exists, create a new one
+    if (!chat) {
+      console.log('No existing chat found. Creating a new chat...');
+      await db.none(
+        `INSERT INTO chats (user1_id, user2_id, created_at) 
+         VALUES ($1, $2, NOW())`,
+        [req.session.user.id, userId]
+      );
+    } else {
+      console.log('Chat already exists:', chat);
+    }
+
+    // Redirect to the messaging page
+    res.redirect('/messaging');
+  } catch (error) {
+    console.error('Error connecting users:', error.message || error);
+    res.redirect('/matching');
+  }
+});
+
+// GET /messaging route
+app.get('/messaging', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch all chats for the logged-in user, ordered by the most recent message
+    const chats = await db.any(
+      `SELECT c.id AS chat_id, 
+              u.id AS user_id, 
+              u.username, 
+              pp.file_path AS profile_picture_path, 
+              MAX(m.created_at) AS last_message_time
+       FROM chats c
+       JOIN users u ON (u.id = c.user1_id AND c.user2_id = $1) 
+                  OR (u.id = c.user2_id AND c.user1_id = $1)
+       LEFT JOIN profile_pictures pp ON pp.user_id = u.id
+       LEFT JOIN messages m ON m.chat_id = c.id
+       GROUP BY c.id, u.id, u.username, pp.file_path
+       ORDER BY last_message_time DESC NULLS LAST`,
+      [req.session.user.id]
+    );
+
+    // Render the messaging page
+    res.render('pages/messaging', { chats });
+  } catch (error) {
+    console.error('Error loading messaging page:', error.message || error);
+    res.render('pages/messaging', { chats: [], message: 'Error loading messages.', error: true });
+  }
+});
+
+app.use('/resources', express.static(path.join(__dirname, 'resources')));
 
 // *****************************************************
-// <!-- Section 5 : Start Server-->
+// <!-- Section 5 : Scheduled Tasks -->
+// *****************************************************
+
+// Schedule a weekly cleanup task (runs every Sunday at midnight)
+cron.schedule('0 0 * * 0', async () => {
+  try {
+    await db.none('DELETE FROM learning_goals WHERE created_at < NOW() - INTERVAL \'7 days\'');
+    console.log('Old learning goals cleared.');
+  } catch (error) {
+    console.error('Error clearing old learning goals:', error.message || error);
+  }
+});
+
+// *****************************************************
+// <!-- Section 6 : Start Server-->
 // *****************************************************
 // starting the server and keeping the connection open to listen for more requests
 module.exports = app.listen(3000);
