@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Messaging</title>
+  <link rel="stylesheet" href="/resources/css/style.css">
+</head>
+<body>
+  <div class="container mt-5">
+    <h2>Messaging</h2>
+
+    <div class="row">
+      <!-- Sidebar for chats -->
+      <div class="col-md-4">
+        <h4>Chats</h4>
+        <ul class="list-group">
+          {{#each chats}}
+            <li class="list-group-item d-flex align-items-center">
+              <img src="{{this.profile_picture_path}}" alt="Profile Picture" class="rounded-circle me-3" width="40" height="40">
+              <span>{{this.username}}</span>
+              <button class="btn btn-danger btn-sm ms-auto">Delete</button> {{! Add functionality to delete chat }}
+            </li>
+          {{/each}}
+        </ul>
+      </div>
+
+      <!-- Main chat area -->
+      <div class="col-md-8">
+        <h4>Chat with [User]</h4>
+        <div class="chat-box">
+          {{! Display messages here }}
+        </div>
+        <form method="POST" action="/messaging/send">
+          <div class="input-group mt-3">
+            <input type="text" class="form-control" name="message" placeholder="Type a message..." required>
+            <button type="submit" class="btn btn-primary">Send</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

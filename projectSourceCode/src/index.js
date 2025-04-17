@@ -587,8 +587,6 @@ app.post('/matching', async (req, res) => {
       [skillId, req.session.user.id]
     );
 
-    console.log('Matches:', matches);
-
     // Fetch predefined skills for the dropdown
     const predefinedSkills = await db.any('SELECT * FROM skills ORDER BY skill_name ASC');
 
@@ -600,6 +598,77 @@ app.post('/matching', async (req, res) => {
   } catch (error) {
     console.error('Error finding matches:', error.message || error);
     res.redirect('/matching');
+  }
+});
+
+// POST /connect route
+app.post('/connect', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const { userId } = req.body;
+
+  try {
+    console.log('Connecting user:', req.session.user.id, 'with user:', userId);
+
+    // Check if a chat already exists between the two users
+    const chat = await db.oneOrNone(
+      `SELECT * FROM chats 
+       WHERE (user1_id = $1 AND user2_id = $2) 
+          OR (user1_id = $2 AND user2_id = $1)`,
+      [req.session.user.id, userId]
+    );
+
+    // If no chat exists, create a new one
+    if (!chat) {
+      console.log('No existing chat found. Creating a new chat...');
+      await db.none(
+        `INSERT INTO chats (user1_id, user2_id, created_at) 
+         VALUES ($1, $2, NOW())`,
+        [req.session.user.id, userId]
+      );
+    } else {
+      console.log('Chat already exists:', chat);
+    }
+
+    // Redirect to the messaging page
+    res.redirect('/messaging');
+  } catch (error) {
+    console.error('Error connecting users:', error.message || error);
+    res.redirect('/matching');
+  }
+});
+
+// GET /messaging route
+app.get('/messaging', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  try {
+    // Fetch all chats for the logged-in user, ordered by the most recent message
+    const chats = await db.any(
+      `SELECT c.id AS chat_id, 
+              u.id AS user_id, 
+              u.username, 
+              pp.file_path AS profile_picture_path, 
+              MAX(m.created_at) AS last_message_time
+       FROM chats c
+       JOIN users u ON (u.id = c.user1_id AND c.user2_id = $1) 
+                  OR (u.id = c.user2_id AND c.user1_id = $1)
+       LEFT JOIN profile_pictures pp ON pp.user_id = u.id
+       LEFT JOIN messages m ON m.chat_id = c.id
+       GROUP BY c.id, u.id, u.username, pp.file_path
+       ORDER BY last_message_time DESC NULLS LAST`,
+      [req.session.user.id]
+    );
+
+    // Render the messaging page
+    res.render('pages/messaging', { chats });
+  } catch (error) {
+    console.error('Error loading messaging page:', error.message || error);
+    res.render('pages/messaging', { chats: [], message: 'Error loading messages.', error: true });
   }
 });
 
