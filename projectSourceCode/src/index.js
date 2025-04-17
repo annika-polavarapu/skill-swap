@@ -267,7 +267,7 @@ app.post('/login', async (req, res) => {
     req.session.user = user;
 
     console.log("Logged-in session user:", req.session.user);
-    
+
     req.session.save(() => {
       res.redirect('/');
     });
@@ -305,7 +305,6 @@ app.get('/profile', async (req, res) => {
   if (!req.session.user) return res.redirect('/login');
 
   try {
-
     const pic = await db.oneOrNone(
       'SELECT file_path FROM profile_pictures WHERE user_id = $1',
       [req.session.user.id]
@@ -317,14 +316,6 @@ app.get('/profile', async (req, res) => {
       req.session.user.profile_picture_path = '/resources/images/image.png';
     }
 
-    const skills = await db.any('SELECT * FROM skills WHERE user_id = $1', [req.session.user.id]);
-    const predefinedSkills = await db.any('SELECT * FROM skills WHERE user_id IS NULL');
-
-    res.render('pages/profile', {
-      user: req.session.user,
-      skills,
-
-    // Fetch user's skills and their expertise levels, sorted alphabetically
     const userSkills = await db.any(
       `SELECT s.id AS skill_id, s.skill_name, el.expertise_level
        FROM skills_to_users stu
@@ -335,7 +326,6 @@ app.get('/profile', async (req, res) => {
       [req.session.user.id]
     );
 
-    // Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
     const predefinedSkills = await db.any(
       `SELECT * FROM skills
        WHERE id NOT IN (
@@ -345,35 +335,25 @@ app.get('/profile', async (req, res) => {
       [req.session.user.id]
     );
 
-    // Render the profile page
-    return res.render('pages/profile', {
-      user: req.session.user,
-      skills: userSkills,
-
-      predefinedSkills,
-      timestamp: Date.now(), // Add timestamp for cache-busting
-    });
-  } catch (error) {
-
-    console.error('Profile error:', error);
     res.render('pages/profile', {
       user: req.session.user,
-      message: 'Error loading profile',
-      error: true
-
+      skills: userSkills,
+      predefinedSkills,
+      timestamp: Date.now()
+    });
+  } catch (error) {
     console.error('Error fetching profile data:', error.message || error);
 
-    // Render the profile page with an error message
-    return res.render('pages/profile', {
+    res.render('pages/profile', {
       user: req.session.user,
       skills: [],
       predefinedSkills: [],
       message: 'An error occurred while loading the profile.',
-      error: true,
-
+      error: true
     });
   }
 });
+
 
 
 // POST /profile/edit route
