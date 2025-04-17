@@ -585,3 +585,22 @@ function reportvalue(){
    // console.log(eventname);
 
 }
+
+
+
+
+    async function getQuote() {
+        const res = await fetch("https://zenquotes.io/api/random");
+        const data = await res.json();
+        console.log(data);
+
+        const proxyUrl = "https://api.allorigins.win/get?url=";
+const targetUrl = "https://zenquotes.io/api/random";
+
+fetch(proxyUrl + encodeURIComponent(targetUrl))
+  .then(response => response.json())
+  .then(data => {
+    const quoteData = JSON.parse(data.contents);
+    console.log(quoteData[0].q, "—", quoteData[0].a);
+  });
+    }
