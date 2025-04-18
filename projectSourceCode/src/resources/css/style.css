@@ -124,3 +124,52 @@ h1, h2 {
   font-weight: bold; /* Make the text bold */
 }
 
+/* Chat box styling */
+.chat-box {
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.message-bubble {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.message-bubble.sender {
+  background-color: #007bff;
+  color: white;
+  align-self: flex-end;
+}
+
+.message-bubble.receiver {
+  background-color: #f1f1f1;
+  color: black;
+  align-self: flex-start;
+}
+
+.date-separator {
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #f9f9f9;
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* List group styling */
+.list-group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-group-item form {
+  margin-left: auto;
+}
+
