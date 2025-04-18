@@ -13,4 +13,4 @@ Annika -> Main skills page in progress. Going to be working on that this week.
 
 Evan -> Working on the profile page, allowing users to see their current username & email, and allowing them to change these. As well as depicting the users skills
  
-Jake ->
+Jake -> Front end polishing and beautifying.
