@@ -414,20 +414,20 @@ function createEventCard(eventDetails) {
 
     if(modality=="remote"){
     info.innerHTML = `
-    Location: ${eventDetails[0].location} <br>
-    Event time: ${eventDetails[0].time} <br>
-    Event modality: ${eventDetails[0].modality} <br>
-    Event attendees: ${eventDetails[0].attendees} <br>
-    Event name: ${eventDetails[0].name} <br>
+    <b>Location:</b> ${eventDetails[0].location} <br>
+    <b> Event time:</b> ${eventDetails[0].time}  <br>
+    <b>Event modality:</b> ${eventDetails[0].modality} <br>
+    <b>Event attendees:</b> ${eventDetails[0].attendees} <br>
+    <b>Event name:</b> ${eventDetails[0].name} <br>
     
 `;}else{
     
     info.innerHTML = `
-    url: ${eventDetails[0].url} <br>
-    Event time: ${eventDetails[0].time} <br>
-    Event modality: ${eventDetails[0].modality} <br>
-    Event attendees: ${eventDetails[0].attendees} <br>
-    Event name: ${eventDetails[0].name} <br>
+    <b>url:</b> ${eventDetails[0].url} <br>
+    <b>Event time: </b>${eventDetails[0].time} <br>
+    <b>Event modality: </b>${eventDetails[0].modality}<br>
+    <b>Event attendees: </b>${eventDetails[0].attendees} <br>
+    <b>Event name: </b>${eventDetails[0].name}<br>
 
 `;
 }
@@ -585,3 +585,22 @@ function reportvalue(){
    // console.log(eventname);
 
 }
+
+
+
+
+    async function getQuote() {
+        const res = await fetch("https://zenquotes.io/api/random");
+        const data = await res.json();
+        console.log(data);
+
+        const proxyUrl = "https://api.allorigins.win/get?url=";
+const targetUrl = "https://zenquotes.io/api/random";
+
+fetch(proxyUrl + encodeURIComponent(targetUrl))
+  .then(response => response.json())
+  .then(data => {
+    const quoteData = JSON.parse(data.contents);
+    console.log(quoteData[0].q, "—", quoteData[0].a);
+  });
+    }

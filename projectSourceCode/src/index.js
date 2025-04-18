@@ -142,10 +142,14 @@ app.use(function (req, res, next) {
 });
 
 app.get('/', (req, res) => {
-  res.render('pages/home', { user: req.session.user }); 
+  res.render('pages/home', { 
+    user: req.session.user,
+    title: 'Home | '
+  });
 });
 
 app.post('/scheduleevent', (req, res) => {
+
 
 
   //res.render('pages/scheduling');
@@ -181,8 +185,8 @@ app.post('/scheduleevent', (req, res) => {
    
   })
 
-
-
+  
+ 
 
 })
 
@@ -193,6 +197,9 @@ app.post('/scheduleevent', (req, res) => {
 
 
 app.get('/findevents', (req, res) => {
+
+
+
   db.tx(async t => {
     const sched = await db.any(
       'SELECT * FROM events;', );
@@ -215,12 +222,12 @@ app.get('/findevents', (req, res) => {
 
 
 app.get('/about', (req, res) => {
-  res.render('pages/about');
+  res.render('pages/about', { title: 'About | ' });
 });
   
 // GET /register route
 app.get('/register', (req, res) => {
-  res.render('pages/register');
+  res.render('pages/register', { title: 'Register | ' });
 });
 
 // POST /register route
@@ -261,13 +268,25 @@ app.post('/register', async (req, res) => {
 
 // GET /scheduling route
 app.get('/scheduling', (req, res) => {
-  res.render('pages/scheduling');
+
+
+  console.log("Logged-in session user:", req.session.user);
+
+  if(req.session.user==null){
+    res.render('pages/login');
+  
+    }else{
+
+      res.render('pages/scheduling');
+
+    }
+ 
 });
 
 
 // GET /login route
 app.get('/login', (req, res) => {
-  res.render('pages/login');
+  res.render('pages/login', { title: 'Login | ' });
 });
 
 // POST /login route
@@ -376,6 +395,7 @@ app.get('/profile', async (req, res) => {
     // Render the profile page
     return res.render('pages/profile', {
       user: req.session.user,
+      title: 'Profile |',
       skills: userSkills,
       predefinedSkills,
       timestamp: Date.now(), // Add timestamp for cache-busting

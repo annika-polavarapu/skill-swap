@@ -1,4 +1,5 @@
 /* Scheduling CSS rules */
+/*test*/
 h1 {
   text-align: center;
   padding-top: 2%;
@@ -60,6 +61,29 @@ body {
   padding-left: 20px;
   padding-right: 20px;
 }
+
+.scroll-footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%;
+  background-color: #222;
+  color: white;
+  text-align: center;
+  padding: 4px;
+  transition: transform 0.4s ease, opacity 0.4s ease;
+  z-index: 100;
+}
+
+.hidden-footer {
+  transform: translateY(100%);
+  opacity: 0;
+}
+
+.visible-footer {
+  transform: translateY(0);
+  opacity: 1;
+}
+
 
 
 /* General page styling */
@@ -124,6 +148,37 @@ h1, h2 {
   font-weight: bold; /* Make the text bold */
 }
 
+nav a {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+nav a:not(.username)::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -4px;
+  background-color: #007bff; /* Or any accent color you want */
+  transition: width 0.3s ease;
+}
+
+nav a:not(.username):hover::after {
+  width: 100%;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn ease 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
 /* Chat box styling */
 .chat-box {
   height: 400px;
@@ -172,4 +227,3 @@ h1, h2 {
 .list-group-item form {
   margin-left: auto;
 }
-
