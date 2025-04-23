@@ -42,4 +42,4 @@ cd skillswap
 Docker compose up in the terminal
 
 ## Link to the deployed application
-
+https://skill-swap-webapp.onrender.com/
