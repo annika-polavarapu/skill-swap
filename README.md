@@ -11,7 +11,7 @@ Frontend: HTML, CSS, Bootstrap, Handlebars
 
 Backend: Node.js, Express
 
-Database: PostgreSQL (with pg-promise)
+Database: PostgreSQL
 
 File Upload: Multer
 
@@ -39,7 +39,7 @@ cd skillswap
 
 ## How to run the tests
 
-Docker compose up in the terminal
+VS Code Terminal: Docker compose up
 
 ## Link to the deployed application
 https://skill-swap-webapp.onrender.com/
