@@ -7,7 +7,7 @@ h1 {
 
 body {
   height: 100%;
-  background-color: #e0e0e0; /* Slightly darker grey */
+  background-color: #fdf6ee; /* warm light beige */
   margin-bottom: 100px;
 }
 
@@ -180,7 +180,7 @@ nav a:not(.username)::after {
   height: 2px;
   left: 0;
   bottom: -4px;
-  background-color: #007bff; /* Or any accent color you want */
+  background-color: #007bff;
   transition: width 0.3s ease;
 }
 
