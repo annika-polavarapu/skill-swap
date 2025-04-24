@@ -318,7 +318,7 @@ app.post('/login', async (req, res) => {
     req.session.user = user;
 
     console.log("Logged-in session user:", req.session.user);
-    
+
     req.session.save(() => {
       res.redirect('/');
     });
@@ -382,7 +382,6 @@ app.get('/profile', async (req, res) => {
       [req.session.user.id]
     );
 
-    // Fetch all predefined skills, excluding those already selected by the user, and sort alphabetically
     const predefinedSkills = await db.any(
       `SELECT * FROM skills
        WHERE id NOT IN (
@@ -403,8 +402,7 @@ app.get('/profile', async (req, res) => {
   } catch (error) {
     console.error('Error fetching profile data:', error.message || error);
 
-    // Render the profile page with an error message
-    return res.render('pages/profile', {
+    res.render('pages/profile', {
       user: req.session.user,
       skills: [],
       predefinedSkills: [],
