@@ -5,20 +5,55 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Matching</title>
   <link rel="stylesheet" href="/resources/css/style.css">
+  <style>
+    .search-suggestions {
+      border: 1px solid #ccc;
+      max-height: 200px;
+      overflow-y: auto;
+      background-color: white;
+      position: absolute;
+      z-index: 10;
+      width: 100%;
+    }
+    .search-suggestions div {
+      padding: 8px;
+      cursor: pointer;
+    }
+    .search-suggestions div:hover {
+      background-color: #f0f0f0;
+    }
+    .position-relative {
+      position: relative;
+    }
+  </style>
 </head>
 <body>
   <div class="container mt-5">
-    <h2>What skill do you want to learn?</h2>
-    <form method="POST" action="/matching">
-      <div class="mb-3">
-        <select class="form-control" name="skillId" required>
+    <h2 class="text-center mb-4">What skill do you want to learn?</h2>
+
+    <form method="POST" action="/matching" onsubmit="return validateSkillSelection()">
+      <!-- Skill Select (default) -->
+      <div class="mb-3" id="select-wrapper">
+        <select class="form-control" name="skillId" id="skill-select">
           <option value="" disabled selected>Select a skill</option>
           {{#each predefinedSkills}}
-            <option value="{{this.id}}">{{this.skill_name}}</option>
+            <option value="{{this.id}}" data-name="{{this.skill_name}}">{{this.skill_name}}</option>
           {{/each}}
         </select>
       </div>
-      <button type="submit" class="btn btn-primary">Find</button>
+
+      <!-- Search Input (hidden by default) -->
+      <div class="mb-3 position-relative" id="search-wrapper" style="display: none;">
+        <input type="text" class="form-control" id="skill-search" placeholder="Start typing a skill...">
+        <input type="hidden" name="skillId" id="selected-skill-id">
+        <div class="search-suggestions" id="suggestion-box"></div>
+      </div>
+
+      <!-- Buttons -->
+      <div class="d-flex gap-2">
+        <button type="submit" class="btn btn-primary">Find</button>
+        <button type="button" class="btn btn-secondary" id="toggle-btn" onclick="toggleSkillSearch()">Or search for skills</button>
+      </div>
     </form>
 
     {{#if matches}}
@@ -62,5 +97,62 @@
       </div>
     {{/if}}
   </div>
+
+  <script>
+    const selectWrapper = document.getElementById("select-wrapper");
+    const searchWrapper = document.getElementById("search-wrapper");
+    const toggleBtn = document.getElementById("toggle-btn");
+
+    function toggleSkillSearch() {
+      const isSearchVisible = searchWrapper.style.display === "block";
+      searchWrapper.style.display = isSearchVisible ? "none" : "block";
+      selectWrapper.style.display = isSearchVisible ? "block" : "none";
+      toggleBtn.textContent = isSearchVisible ? "Or search for skills" : "Or select a skill";
+
+      // Reset hidden field if switching back to dropdown
+      if (isSearchVisible) {
+        document.getElementById("selected-skill-id").value = "";
+      }
+    }
+
+    const input = document.getElementById("skill-search");
+    const suggestionBox = document.getElementById("suggestion-box");
+    const hiddenInput = document.getElementById("selected-skill-id");
+
+    input?.addEventListener("input", () => {
+      const query = input.value.toLowerCase();
+      const allOptions = document.querySelectorAll("#skill-select option");
+
+      suggestionBox.innerHTML = "";
+
+      allOptions.forEach(option => {
+        const skillName = option.textContent.toLowerCase();
+        if (skillName.includes(query) && option.value) {
+          const div = document.createElement("div");
+          div.textContent = option.textContent;
+          div.onclick = () => {
+            input.value = option.textContent;
+            hiddenInput.value = option.value;
+            suggestionBox.innerHTML = "";
+          };
+          suggestionBox.appendChild(div);
+        }
+      });
+    });
+
+    document.addEventListener("click", (e) => {
+      if (!e.target.closest("#search-wrapper")) {
+        suggestionBox.innerHTML = "";
+      }
+    });
+
+    function validateSkillSelection() {
+      const isSearchMode = searchWrapper.style.display === "block";
+      if (isSearchMode) {
+        return !!hiddenInput.value;
+      }
+      return true;
+    }
+  </script>
 </body>
 </html>
