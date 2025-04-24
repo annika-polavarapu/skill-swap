@@ -11,3 +11,5 @@ erase scheduled events from screen when dates cycled through to prevent event bu
 Anthony -> Logout code was written (Functionality needs to checked). Going to be working on nav and profile picture for the user.
 
 Annnika -> Login/Registration pages made. Going to be working on the skills page frontend and backend.
+
+Jake -> Had the flu, but worked on implementation of matching page.
