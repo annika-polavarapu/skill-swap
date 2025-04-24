@@ -4,6 +4,13 @@
 
 let currentoffset=0;
 
+
+let dates = [];
+
+
+function addtodatedir(item){
+    dates.push(item);
+}
  
 
 function ww() {
