@@ -342,3 +342,17 @@ body:not(.dark-mode) p {
 .scroll-footer p {
   color: #f0f0f0 !important;
 }
+
+/* Light mode nav links */
+body:not(.dark-mode) .navbar .nav-link {
+  color: #000 !important;
+}
+
+/* Dark mode nav links */
+body.dark-mode .navbar .nav-link {
+  color: #fff !important;
+}
+
+body.dark-mode .navbar .nav-link:hover {
+  color: #dceeff !important;
+}
