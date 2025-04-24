@@ -69,7 +69,7 @@ body {
   background-color: #222;
   color: white;
   text-align: center;
-  padding: 10px;
+  padding: 4px;
   transition: transform 0.4s ease, opacity 0.4s ease;
   z-index: 100;
 }
@@ -148,3 +148,82 @@ h1, h2 {
   font-weight: bold; /* Make the text bold */
 }
 
+nav a {
+  position: relative;
+  text-decoration: none;
+  color: inherit;
+}
+
+nav a:not(.username)::after {
+  content: "";
+  position: absolute;
+  width: 0%;
+  height: 2px;
+  left: 0;
+  bottom: -4px;
+  background-color: #007bff; /* Or any accent color you want */
+  transition: width 0.3s ease;
+}
+
+nav a:not(.username):hover::after {
+  width: 100%;
+}
+
+.fade-in {
+  opacity: 0;
+  animation: fadeIn ease 0.6s forwards;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; transform: translateY(10px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+
+/* Chat box styling */
+.chat-box {
+  height: 400px;
+  overflow-y: scroll;
+  border: 1px solid #ddd;
+  padding: 10px;
+  background-color: #f9f9f9;
+}
+
+.message-bubble {
+  display: inline-block;
+  padding: 10px 15px;
+  border-radius: 20px;
+  max-width: 70%;
+  word-wrap: break-word;
+}
+
+.message-bubble.sender {
+  background-color: #007bff;
+  color: white;
+  align-self: flex-end;
+}
+
+.message-bubble.receiver {
+  background-color: #f1f1f1;
+  color: black;
+  align-self: flex-start;
+}
+
+.date-separator {
+  font-size: 0.9rem;
+  color: #666;
+  background-color: #f9f9f9;
+  padding: 5px 10px;
+  border-radius: 10px;
+  display: inline-block;
+}
+
+/* List group styling */
+.list-group-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.list-group-item form {
+  margin-left: auto;
+}

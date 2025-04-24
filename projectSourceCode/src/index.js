@@ -17,6 +17,32 @@ const axios = require('axios'); // To make HTTP requests from our server. We'll 
 const multer = require('multer'); // To handle file uploads
 const fs = require('fs');
 const cron = require('node-cron'); // To schedule tasks
+const moment = require('moment-timezone');
+const http = require('http');
+const { Server } = require('socket.io');
+
+// Register the formatDate helper
+Handlebars.registerHelper('formatDate', function (date, format) {
+  return moment(date).tz('America/Denver').format(format);
+});
+
+// Register the neq helper
+Handlebars.registerHelper('neq', function (a, b) {
+  return a !== b;
+});
+
+// Register the eq helper
+Handlebars.registerHelper('eq', function (a, b) {
+  return a === b;
+});
+
+// Register the set helper
+Handlebars.registerHelper('set', function (varName, varValue, options) {
+  if (!options.data.root) {
+    options.data.root = {};
+  }
+  options.data.root[varName] = varValue;
+});
 
 // *****************************************************
 // <!-- Section 2 : Connect to DB -->
@@ -31,7 +57,7 @@ const hbs = handlebars.create({
 
 // database configuration
 const dbConfig = {
-  host: 'db', // the database server
+  host: process.env.POSTGRES_HOST || 'db', // the database server
   port: 5432, // the database port
   database: process.env.POSTGRES_DB, // the database name
   user: process.env.POSTGRES_USER, // the user account to connect with
@@ -56,7 +82,7 @@ db.connect()
 
 // Register `hbs` as our view engine using its bound `engine()` function.
 app.engine('hbs', hbs.engine);
-app.set('view engine', 'hbs');
+app.set('view engine', 'hbs');// Update the views path for Render
 app.set('views', path.join(__dirname, 'views'));
 app.use(bodyParser.json()); // specify the usage of JSON for parsing request body.
 
@@ -664,8 +690,10 @@ app.get('/messaging', async (req, res) => {
     return res.redirect('/login');
   }
 
+  const { chatId } = req.query;
+
   try {
-    // Fetch all chats for the logged-in user, ordered by the most recent message
+    // Fetch all chats for the logged-in user
     const chats = await db.any(
       `SELECT c.id AS chat_id, 
               u.id AS user_id, 
@@ -682,11 +710,133 @@ app.get('/messaging', async (req, res) => {
       [req.session.user.id]
     );
 
+    // Redirect to the top chat if no chatId is provided and there are chats
+    if (!chatId && chats.length > 0) {
+      return res.redirect(`/messaging?chatId=${chats[0].chat_id}`);
+    }
+
+    let messages = [];
+    let chatUser = null;
+
+    if (chatId) {
+      // Fetch messages for the selected chat
+      const rawMessages = await db.any(
+        `SELECT m.content, m.created_at, m.sender_id, u.username 
+         FROM messages m
+         JOIN users u ON m.sender_id = u.id
+         WHERE m.chat_id = $1
+         ORDER BY m.created_at ASC`,
+        [chatId]
+      );
+
+      // Group messages by date
+      let lastDate = null;
+      messages = rawMessages.map((message) => {
+        const currentDate = moment(message.created_at).tz('America/Denver').format('YYYY-MM-DD');
+        const showDateSeparator = currentDate !== lastDate;
+        lastDate = currentDate;
+        return {
+          ...message,
+          showDateSeparator,
+          formattedDate: moment(message.created_at).tz('America/Denver').format('MMMM DD, YYYY'),
+          formattedTime: moment(message.created_at).tz('America/Denver').format('HH:mm'),
+        };
+      });
+
+      // Fetch the user details of the other participant in the chat
+      chatUser = await db.oneOrNone(
+        `SELECT u.id, u.username, pp.file_path AS profile_picture_path
+         FROM chats c
+         JOIN users u ON (u.id = c.user1_id AND c.user2_id = $1) 
+                    OR (u.id = c.user2_id AND c.user1_id = $1)
+         LEFT JOIN profile_pictures pp ON pp.user_id = u.id
+         WHERE c.id = $2`,
+        [req.session.user.id, chatId]
+      );
+    }
+
     // Render the messaging page
-    res.render('pages/messaging', { chats });
+    res.render('pages/messaging', { chats, messages, chatUser, chatId });
   } catch (error) {
     console.error('Error loading messaging page:', error.message || error);
-    res.render('pages/messaging', { chats: [], message: 'Error loading messages.', error: true });
+    res.render('pages/messaging', { chats: [], messages: [], chatUser: null, chatId: null, message: 'Error loading messages.', error: true });
+  }
+});
+
+// GET /messaging/messages route
+app.get('/messaging/messages', async (req, res) => {
+  const { chatId } = req.query;
+
+  try {
+    const rawMessages = await db.any(
+      `SELECT m.content, m.created_at, m.sender_id, u.username 
+       FROM messages m
+       JOIN users u ON m.sender_id = u.id
+       WHERE m.chat_id = $1
+       ORDER BY m.created_at ASC`,
+      [chatId]
+    );
+
+    // Group messages by date
+    let lastDate = null;
+    const messages = rawMessages.map((message) => {
+      const currentDate = moment(message.created_at).tz('America/Denver').format('YYYY-MM-DD');
+      const showDateSeparator = currentDate !== lastDate;
+      lastDate = currentDate;
+      return {
+        ...message,
+        showDateSeparator,
+        formattedDate: moment(message.created_at).tz('America/Denver').format('MMMM DD, YYYY'),
+        formattedTime: moment(message.created_at).tz('America/Denver').format('HH:mm'),
+      };
+    });
+
+    res.render('partials/messages', { messages, layout: false });
+  } catch (error) {
+    console.error('Error fetching messages:', error.message || error);
+    res.status(500).send('Error fetching messages');
+  }
+});
+
+// POST /messaging/send route
+app.post('/messaging/send', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const { chatId, message } = req.body;
+
+  try {
+    // Insert the new message into the messages table
+    await db.none(
+      `INSERT INTO messages (chat_id, sender_id, content, created_at) 
+       VALUES ($1, $2, $3, NOW())`,
+      [chatId, req.session.user.id, message]
+    );
+
+    // Redirect back to the messaging page with the same chat
+    res.redirect(`/messaging?chatId=${chatId}`);
+  } catch (error) {
+    console.error('Error sending message:', error.message || error);
+    res.redirect('/messaging');
+  }
+});
+
+// POST /messaging/delete route
+app.post('/messaging/delete', async (req, res) => {
+  if (!req.session.user) {
+    return res.redirect('/login');
+  }
+
+  const { chatId } = req.body;
+
+  try {
+    // Delete the chat and its associated messages
+    await db.none('DELETE FROM chats WHERE id = $1', [chatId]);
+    res.redirect('/messaging');
+  } catch (error) {
+    console.error('Error deleting chat:', error.message || error);
+    res.redirect('/messaging');
   }
 });
 
@@ -709,6 +859,53 @@ cron.schedule('0 0 * * 0', async () => {
 // *****************************************************
 // <!-- Section 6 : Start Server-->
 // *****************************************************
-// starting the server and keeping the connection open to listen for more requests
-module.exports = app.listen(3000);
-console.log('Server is listening on port 3000');
+
+// Create an HTTP server
+const server = http.createServer(app);
+
+// Attach Socket.IO to the server
+const io = new Server(server);
+
+// Handle WebSocket connections
+io.on('connection', (socket) => {
+  console.log('A user connected:', socket.id);
+
+  // Listen for a new message event
+  socket.on('newMessage', async (data) => {
+    try {
+      // Save the message to the database
+      await db.none(
+        `INSERT INTO messages (chat_id, sender_id, content, created_at) 
+         VALUES ($1, $2, $3, NOW())`,
+        [data.chatId, data.senderId, data.content]
+      );
+
+      // Broadcast the message to all clients in the same chat room
+      io.to(data.chatId).emit('messageReceived', data);
+    } catch (error) {
+      console.error('Error saving message:', error.message || error);
+    }
+  });
+
+  // Join a chat room
+  socket.on('joinChat', (chatId) => {
+    socket.join(chatId);
+    console.log(`User ${socket.id} joined chat ${chatId}`);
+  });
+
+  // Leave a chat room
+  socket.on('leaveChat', (chatId) => {
+    socket.leave(chatId);
+    console.log(`User ${socket.id} left chat ${chatId}`);
+  });
+
+  // Handle disconnection
+  socket.on('disconnect', () => {
+    console.log('A user disconnected:', socket.id);
+  });
+});
+
+// Start the server
+server.listen(3000, () => {
+  console.log('Server is listening on port 3000');
+});
