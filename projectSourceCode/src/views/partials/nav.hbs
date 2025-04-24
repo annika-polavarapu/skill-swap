@@ -1,34 +1,32 @@
 <header>
   <nav class="navbar navbar-expand-sm" style="background: linear-gradient(90deg, #4f9aff, #56d8ff);">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-      <!-- Left Side: Logo + Links -->
+
+      <!-- Left: Logo + Links -->
       <div class="d-flex align-items-center gap-4">
-        <a class="navbar-brand text-white fw-bold" href="/">
+        <a class="navbar-brand" href="/">
           <img src="/resources/images/Logo2.png" alt="Logo" style="height: 40px;">
         </a>
-        <ul class="navbar-nav d-flex flex-row gap-3 mb-0">
-
-      <div class="collapse navbar-collapse" id="navbar-collapse">
-        <ul class="navbar-nav me-auto">
-          <a class="navbar-brand" href="/">
-            <img src="/resources/images/Logo2.png" alt="Logo" style="height: 40px;">
-          </a>
-          <li class="nav-item">
-            <a class="nav-link text-white fw-semibold" href="/about">About</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white fw-semibold" href="/scheduling">Scheduling</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white fw-semibold" href="/matching">Matching</a>
-          </li>
-          <li class="nav-item">
-            <a class="nav-link text-white fw-semibold" href="/messaging">Messaging</a>
-          </li>
-        </ul>
+        <div class="collapse navbar-collapse" id="navbar-collapse">
+          <ul class="navbar-nav d-flex flex-row gap-3 mb-0">
+            <li class="nav-item">
+              <a class="nav-link text-white fw-semibold" href="/about">About</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white fw-semibold" href="/scheduling">Scheduling</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white fw-semibold" href="/matching">Matching</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link text-white fw-semibold" href="/messaging">Messaging</a>
+            </li>
+          </ul>
+        </div>
       </div>
-      <!-- Right Side: Login/User -->
-      <div class="d-flex align-items-center" style="font-size: 1.1rem; padding-right: 1rem;">
+
+      <!-- Right: Login/User -->
+      <div class="d-flex align-items-center" style="font-size: 1.1rem;">
         {{#if user}}
           <div class="dropdown">
             <a class="nav-link dropdown-toggle text-white fw-bold px-3" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
@@ -39,20 +37,6 @@
               <li><hr class="dropdown-divider"></li>
               <li><a class="dropdown-item" href="/logout">Logout</a></li>
             </ul>
-
-          <div class="dropdown ms-auto">
-            {{#if user}}
-              <a class="nav-link dropdown-toggle username" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                {{user.username}}
-              </a>
-              <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <li><a class="dropdown-item" href="/profile">Profile</a></li>
-                <li><hr class="dropdown-divider"></li>
-                <li><a class="dropdown-item" href="/logout">Logout</a></li>
-              </ul>
-            {{else}}
-              <a class="nav-link" href="/login">Login</a>
-            {{/if}}
           </div>
         {{else}}
           <a class="nav-link text-white fw-bold px-3" href="/login">Login</a>
