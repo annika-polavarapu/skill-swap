@@ -15,11 +15,6 @@ body {
   cursor: pointer;
 }
 
-
-
-
-
-
 .modal-backdrop {
   display: none;
   z-index: 1040 !important;
